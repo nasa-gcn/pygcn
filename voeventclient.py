@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+"""
+Anonymous VOEvent client for receiving GCNs in XML format.
+"""
+__author__ = "Leo Singer <leo.singer@ligo.org>"
+
+
 import socket
 import struct
 import time
@@ -12,12 +18,14 @@ import threading
 size_struct = struct.Struct("!I")
 size_len = size_struct.size
 
+
 def get_now_iso8601():
     return datetime.datetime.now().isoformat()
 
+
 class VOEventClient(threading.Thread):
 
-    def __init__(self, host="68.169.57.253", port=8099, ivorn="ivo://astro.caltech.edu/leo.singer", iamalive_timeout=70, max_reconnect_timeout=1024, log=None):
+    def __init__(self, host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=70, max_reconnect_timeout=1024, log=None):
         super(VOEventClient, self).__init__()
         self.host = host
         self.port = port
