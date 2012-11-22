@@ -36,22 +36,6 @@ class VOEventClient(threading.Thread):
             log = logging.getLogger(self.__class__.__name__)
         self.log = log
 
-        self._receipt_template = ElementTree.fromstring("""<?xml version='1.0' encoding='UTF-8'?>
-        <trn:Transport role="ack" version="1.0"
-        xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1
-        http://telescope-networks.org/schema/Transport-v1.1.xsd">
-        <Origin></Origin>
-        <Response></Response>
-        <TimeStamp></TimeStamp>
-        </trn:Transport>
-        """)
-        self._receipt_template.find("Response").text = self.ivorn
-        self._receipt_template_origin = self._receipt_template.find("Origin")
-        self._receipt_template_timestamp = self._receipt_template.find("TimeStamp")
-
-
     def _open_socket(self):
         """Establish a connection. Wait 1 second after the first failed attempt.
         Double the timeout after each failed attempt thereafter, until the
@@ -101,22 +85,15 @@ class VOEventClient(threading.Thread):
         # Send payload
         sock.sendall(payload)
 
+    @staticmethod
+    def _form_response(role, origin, response, timestamp):
+        return '''<?xml version='1.0' encoding='UTF-8'?><trn:Transport role="''' + role + '''" version="1.0" xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1 http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>''' + origin + '''</Origin><Response>''' + response + '''</Response><TimeStamp>''' + timestamp + '''</TimeStamp></trn:Transport>'''
+
     def _form_iamalive_response(self, root):
-        root.attrib["role"] = "iamalive"
-        response = ElementTree.Element("Response")
-        response.text = self.ivorn
-        root.append(response)
-        timestamp = root.find("TimeStamp")
-        if timestamp is None:
-            timestamp = ElementTree.Element("TimeStamp")
-            root.append(timestamp)
-        timestamp.text = get_now_iso8601()
-        return buffer(ElementTree.tostring(root))
+        return self._form_response("iamalive", root.find("Origin").text, self.ivorn, get_now_iso8601())
 
     def _form_receipt_response(self, root):
-        self._receipt_template_origin.text = root.attrib["ivorn"]
-        self._receipt_template_timestamp = get_now_iso8601()
-        return buffer(ElementTree.tostring(self._receipt_template))
+        return self._form_response("ack", root.attrib["ivorn"], self.ivorn, get_now_iso8601())
 
     def _ingest_packet(self, sock):
         # Receive payload
