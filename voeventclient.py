@@ -12,6 +12,8 @@ import xml.etree.cElementTree as ElementTree
 import logging
 import datetime
 import threading
+import Queue
+import urllib
 
 
 # Buffer for storing message size
@@ -23,9 +25,51 @@ def get_now_iso8601():
     return datetime.datetime.now().isoformat()
 
 
+class PayloadHandler(threading.Thread):
+    """Base class for payload handling worker thread."""
+
+    def __init__(self, log=None):
+        super(PayloadHandler, self).__init__()
+        if log is None:
+            log = logging.getLogger(self.__class__.__name__)
+        self.log = log
+        self._queue = Queue.Queue()
+        self.put = self._queue.put
+
+    def finish(self):
+        """Put None on the queue, to tell the thread to stop."""
+        self.put(None)
+        self.join()
+
+    def handlePayload(self, payload):
+        """Handle one payload."""
+        raise NotImplementedError
+
+    def run(self):
+        self.log.info("started")
+        for payload in iter(self._queue.get, None):
+            self.handlePayload(payload)
+            self._queue.task_done()
+        self.log.info("finished")
+
+
+class ArchivingPayloadHandler(PayloadHandler):
+    """Payload handler that archives VOEvent messages as files in the current
+    working directory. The filename is a URL-escaped version of the messages'
+    IVORN."""
+
+    def handlePayload(self, payload):
+        root = ElementTree.fromstring(payload)
+        ivorn = root.attrib['ivorn']
+        filename = urllib.quote_plus(ivorn)
+        with open(filename, "w") as f:
+            f.write(payload)
+        self.log.info("archived %s", ivorn)
+
+
 class VOEventClient(threading.Thread):
 
-    def __init__(self, host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=70, max_reconnect_timeout=1024, log=None):
+    def __init__(self, host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=70, max_reconnect_timeout=1024, handlers=None, log=None):
         super(VOEventClient, self).__init__()
         self.host = host
         self.port = port
@@ -35,6 +79,9 @@ class VOEventClient(threading.Thread):
         if log is None:
             log = logging.getLogger(self.__class__.__name__)
         self.log = log
+        self._handlers = []
+        if handlers is not None:
+            self._handlers.extend(handlers)
 
     def _open_socket(self):
         """Establish a connection. Wait 1 second after the first failed attempt.
@@ -46,7 +93,7 @@ class VOEventClient(threading.Thread):
                 # Open socket
                 sock = socket.socket()
                 sock.settimeout(self.iamalive_timeout)
-                self.log.info("opened socket")
+                self.log.debug("opened socket")
 
                 # Connect to host
                 sock.connect((self.host, self.port))
@@ -98,7 +145,7 @@ class VOEventClient(threading.Thread):
     def _ingest_packet(self, sock):
         # Receive payload
         payload = self._recv_packet(sock)
-        self.log.info("received packet of %d bytes", len(payload))
+        self.log.debug("received packet of %d bytes", len(payload))
         self.log.debug("payload is:\n%s", payload)
 
         # Parse payload and act on it
@@ -107,17 +154,22 @@ class VOEventClient(threading.Thread):
             if "role" not in root.attrib:
                 self.log.error("receieved transport message without a role")
             elif root.attrib["role"] == "iamalive":
-                self.log.info("received iamalive message")
+                self.log.debug("received iamalive message")
                 self._send_packet(sock, self._form_iamalive_response(root))
-                self.log.info("sent iamalive response")
+                self.log.debug("sent iamalive response")
             else:
                 self.log.error("received transport message with unrecognized role: %s", root.attrib["role"])
         elif root.tag == "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent":
             self.log.info("received VOEvent")
             self._send_packet(sock, self._form_receipt_response(root))
-            self.log.info("sent receipt response")
+            self.log.debug("sent receipt response")
+            for handler in self._handlers:
+                handler.put(payload)
         else:
             self.log.error("received XML document with unrecognized root tag: %s", root.tag)
+
+    def add_handler(self, handler):
+        self._handlers.append(handler)
 
     def run(self):
         while True:
@@ -144,8 +196,17 @@ class VOEventClient(threading.Thread):
 
 if __name__ == "__main__":
     # Set up logger
-    logging.basicConfig()
-    log = logging.getLogger("gcn")
-    log.setLevel(logging.INFO)
+    logging.basicConfig(level=logging.INFO)
 
-    VOEventClient(log=log).run()
+    # Set up and start handler thread to save VOEvents to disk
+    handler = ArchivingPayloadHandler()
+    handler.start()
+
+    try:
+        # Set up and start client on main thread
+        client = VOEventClient(handlers=[handler])
+        client.run()
+    finally:
+        # Wait for archiving handler to finish processing all events in its queue
+        handler.finish()
+
