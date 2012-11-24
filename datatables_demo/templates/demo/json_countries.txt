@@ -1,0 +1,23 @@
+{
+    "sEcho": {{sEcho}},
+    "iTotalRecords": {{iTotalRecords}},
+    "iTotalDisplayRecords": {{iTotalDisplayRecords}},
+    "aaData":[
+    {% for country in querySet %}
+    [
+    	
+    	"{{country.id}}",
+    	"{{country.name}}",
+		"{{country.formal_name}}",
+    	"{{country.capital}}",
+		"{{country.currency_code}}",
+		"{{country.currency_name}}",
+		"{{country.phone_prefix}}",
+		"{{country.tld}}"
+	]
+    {% if not forloop.last %}
+    ,
+    {% endif %}
+    {% endfor %}
+    ]
+}

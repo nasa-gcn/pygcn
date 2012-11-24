@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ block.super }}
+
+<script type="text/javascript">
+/* <![CDATA[ */
+$(document).ready(function() {
+	$('#countries-table').dataTable({
+		'sPaginationType': 'full_numbers', 
+		"bServerSide": true, 
+		"sAjaxSource": "{% url get_countries_list %}",
+		"aoColumns": [
+			{ "bSearchable": false},
+			{ "bSearchable": true},
+			{ "bSearchable": true},
+			{ "bSearchable": true},
+			{ "bSearchable": false},
+			{ "bSearchable": false},
+			{ "bSearchable": false},
+			{ "bSearchable": false},
+		]
+	});
+} );
+/* ]]> */
+</script>
+
+{% endblock %}
+
+{% block content %}
+<a href="/">Back to index</a>
+<div style="width:50%;">
+<table id="countries-table" style="width:100%;">
+	<thead>
+		<tr>
+			<th>
+				ID
+			</th>
+			<th>
+				Name
+			</th>
+			<th>
+				Formal name
+			</th>
+			<th>
+				Capital
+			</th>
+			<th>
+				Currency code
+			</th>
+			<th>
+				Currency name
+			</th>
+			<th>
+				Phone prefix
+			</th>
+			<th>
+				TLD
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+
+	</tbody>
+</table>
+</div>
+{% endblock %}

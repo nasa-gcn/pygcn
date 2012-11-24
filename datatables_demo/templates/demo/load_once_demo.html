@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ block.super }}
+
+<script type="text/javascript">
+/* <![CDATA[ */
+$(document).ready(function() {
+	$('#countries-table').dataTable({
+		'sPaginationType': 'full_numbers', 
+	});
+} );
+/* ]]> */
+</script>
+
+{% endblock %}
+
+{% block content %}
+<a href="/">Back to index</a>
+<div style="width:50%;">
+<table id="countries-table" style="width:100%;">
+	<thead>
+		<tr>
+			<th>
+				ID
+			</th>
+			<th>
+				Name
+			</th>
+			<th>
+				Formal name
+			</th>
+			<th>
+				Capital
+			</th>
+			<th>
+				Currency code
+			</th>
+			<th>
+				Currency name
+			</th>
+			<th>
+				Phone prefix
+			</th>
+			<th>
+				TLD
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for country in countries %}
+			<tr>
+				<td>{{country.id}}</td>
+				<td>{{country.name}}</td>
+				<td>{{country.formal_name}}</td>
+				<td>{{country.capital}}</td>
+				<td>{{country.currency_code}}</td>
+				<td>{{country.currency_name}}</td>
+				<td>{{country.phone_prefix}}</td>
+				<td>{{country.tld}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+</div>
+{% endblock %}
