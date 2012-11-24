@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
+from django.conf.urls.static import static
 import os
 
 # Uncomment the next two lines to enable the admin:
@@ -24,5 +25,4 @@ urlpatterns = patterns('',
 
 #static files in debug mode(e.g css)
 if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^site_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'site_media').replace('\\','/')}),    )
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

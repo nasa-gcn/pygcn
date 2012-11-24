@@ -59,6 +59,26 @@ SECRET_KEY = 'nispp5#gx9=%yi2yk&amp;)d-bexkqno-o0or1d+yc11nohv!=4wh+'
 #     'django.template.loaders.eggs.load_template_source',
 #)
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+)
+
+STATICFILES_DIRS = (
+    'DataTables-1.9.4/media',
+    'DataTables-1.9.4/extras/Scroller/media'
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+)
+
+STATIC_URL = '/static/'
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -76,8 +96,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
 	'datatables_demo.demo',
 )
 
-JQUERY_BASE = 'http://ajax.aspnetcdn.com/ajax/jQuery'
-DATATABLES_BASE = 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4'
