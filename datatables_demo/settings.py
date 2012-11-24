@@ -78,3 +78,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
 	'datatables_demo.demo',
 )
+
+JQUERY_BASE = 'http://ajax.aspnetcdn.com/ajax/jQuery'
+DATATABLES_BASE = 'http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4'
