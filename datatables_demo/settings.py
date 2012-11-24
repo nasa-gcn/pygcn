@@ -70,7 +70,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 STATICFILES_DIRS = (
     'DataTables-1.9.4/media',
-    'DataTables-1.9.4/extras/Scroller/media'
+    'DataTables-1.9.4/extras/Scroller/media',
+    'jquery-ui-1.9.2.custom'
 )
 
 STATICFILES_FINDERS = (
