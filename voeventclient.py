@@ -121,7 +121,7 @@ class VOEventClient(threading.Thread):
             self._send_packet(sock, self._form_receipt_response(root))
             self.log.debug("sent receipt response")
             for handler in self._handlers:
-                handler.put(payload)
+                handler.put((payload, root))
         else:
             self.log.error("received XML document with unrecognized root tag: %s", root.tag)
 

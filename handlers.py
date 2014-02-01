@@ -4,7 +4,6 @@ Payload handlers.
 __author__ = "Leo Singer <leo.singer@ligo.org>"
 
 
-import xml.etree.cElementTree as ElementTree
 import logging
 import threading
 import Queue
@@ -27,14 +26,14 @@ class PayloadHandler(threading.Thread):
         self.put(None)
         self.join()
 
-    def handlePayload(self, payload):
+    def handlePayload(self, payload, root):
         """Handle one payload."""
         raise NotImplementedError
 
     def run(self):
         self.log.info("started")
-        for payload in iter(self._queue.get, None):
-            self.handlePayload(payload)
+        for args in iter(self._queue.get, None):
+            self.handlePayload(*args)
             self._queue.task_done()
         self.log.info("finished")
 
@@ -44,8 +43,7 @@ class ArchivingPayloadHandler(PayloadHandler):
     working directory. The filename is a URL-escaped version of the messages'
     IVORN."""
 
-    def handlePayload(self, payload):
-        root = ElementTree.fromstring(payload)
+    def handlePayload(self, payload, root):
         ivorn = root.attrib['ivorn']
         filename = urllib.quote_plus(ivorn)
         with open(filename, "w") as f:
