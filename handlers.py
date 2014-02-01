@@ -33,7 +33,10 @@ class PayloadHandler(threading.Thread):
     def run(self):
         self.log.info("started")
         for args in iter(self._queue.get, None):
-            self.handlePayload(*args)
+            try:
+                self.handlePayload(*args)
+            except:
+                self.log.exception('exception in handler')
             self._queue.task_done()
         self.log.info("finished")
 
