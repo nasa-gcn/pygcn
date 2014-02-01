@@ -132,7 +132,7 @@ class VOEventClient(threading.Thread):
                 self.log.debug("sent iamalive response")
             else:
                 self.log.error("received transport message with unrecognized role: %s", root.attrib["role"])
-        elif root.tag == "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent":
+        elif root.tag in {"{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent", "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent"}:
             self.log.info("received VOEvent")
             self._send_packet(sock, self._form_receipt_response(root))
             self.log.debug("sent receipt response")
