@@ -18,9 +18,31 @@
 #
 """
 Example VOEvent listener that saves all incoming VOEvents to disk.
+
+The default server is "68.169.57.253:8099".
 """
 __author__ = "Leo Singer <leo.singer@ligo.org>"
 
+# Command line interface
+DEFAULT_HOST = '68.169.57.253'
+DEFAULT_PORT = 8099
+from optparse import Option, OptionParser
+parser = OptionParser(description=__doc__, usage='%prog [options] [HOSTNAME[:PORT]]')
+opts, args = parser.parse_args()
+if len(args) == 0:
+    host = DEFAULT_HOST
+    port = DEFAULT_PORT
+elif len(args) == 1:
+    host, _, port = args[0].partition(':')
+    if port:
+        try:
+            port = int(port)
+        except ValueError:
+            parser.error('invalid hostname: "{0}"'.format(args[0]))
+    else:
+        port = DEFAULT_PORT
+else:
+    parser.error('too many command line arguments')
 
 # Imports
 import gcn
@@ -36,7 +58,7 @@ handler.start()
 
 try:
     # Set up and start client on main thread
-    client = gcn.VOEventClient(handlers=[handler])
+    client = gcn.VOEventClient(host=host, port=port, handlers=[handler])
     client.run()
 finally:
     # Wait for archiving handler to finish processing all events in its queue
