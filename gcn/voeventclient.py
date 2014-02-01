@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (C) 2013  Leo Singer
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -167,23 +165,3 @@ class VOEventClient(threading.Thread):
                     self.log.exception("could not close socket")
                 else:
                     self.log.info("closed socket")
-
-
-if __name__ == "__main__":
-    import handlers
-
-    # Set up logger
-    logging.basicConfig(level=logging.INFO)
-
-    # Set up and start handler thread to save VOEvents to disk
-    handler = handlers.ArchivingPayloadHandler()
-    handler.start()
-
-    try:
-        # Set up and start client on main thread
-        client = VOEventClient(handlers=[handler])
-        client.run()
-    finally:
-        # Wait for archiving handler to finish processing all events in its queue
-        handler.finish()
-
