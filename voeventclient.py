@@ -38,6 +38,7 @@ size_len = size_struct.size
 
 
 def get_now_iso8601():
+    """Get current date-time in ISO 8601 format."""
     return datetime.datetime.now().isoformat()
 
 
