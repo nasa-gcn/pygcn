@@ -27,7 +27,6 @@ import xml.etree.cElementTree as ElementTree
 import logging
 import datetime
 import threading
-import urllib
 
 
 # Buffer for storing message size
