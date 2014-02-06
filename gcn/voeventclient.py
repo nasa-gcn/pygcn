@@ -42,7 +42,7 @@ def get_now_iso8601():
 
 class VOEventClient(threading.Thread):
 
-    def __init__(self, host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=70, max_reconnect_timeout=1024, handlers=None, log=None):
+    def __init__(self, host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150, max_reconnect_timeout=1024, handlers=None, log=None):
         super(VOEventClient, self).__init__()
         self.host = host
         self.port = port
