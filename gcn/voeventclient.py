@@ -65,12 +65,21 @@ class VOEventClient(threading.Thread):
             try:
                 # Open socket
                 sock = socket.socket()
-                sock.settimeout(self.iamalive_timeout)
-                self.log.debug("opened socket")
+                try:
+                    sock.settimeout(self.iamalive_timeout)
+                    self.log.debug("opened socket")
 
-                # Connect to host
-                sock.connect((self.host, self.port))
-                self.log.info("connected to %s:%d", self.host, self.port)
+                    # Connect to host
+                    sock.connect((self.host, self.port))
+                    self.log.info("connected to %s:%d", self.host, self.port)
+                except socket.error:
+                    try:
+                        sock.close()
+                    except socket.error:
+                        self.log.exception("could not close socket")
+                    else:
+                        self.log.info("closed socket")
+                    raise
             except socket.error:
                 if reconnect_timeout < self.max_reconnect_timeout:
                     reconnect_timeout <<= 1
