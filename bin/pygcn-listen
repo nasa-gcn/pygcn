@@ -52,15 +52,5 @@ import logging
 # Set up logger
 logging.basicConfig(level=logging.INFO)
 
-# Set up and start handler thread to save VOEvents to disk
-handler = gcn.handlers.ArchivingPayloadHandler()
-handler.start()
-
-try:
-    # Set up and start client on main thread
-    client = gcn.VOEventClient(host=host, port=port, handlers=[handler])
-    client.run()
-finally:
-    # Wait for archiving handler to finish processing all events in its queue
-    handler.finish()
-
+# Listen for GCN notices (until interrupted or killed)
+gcn.listen(host=host, port=port, handlers=[gcn.handlers.archive])
