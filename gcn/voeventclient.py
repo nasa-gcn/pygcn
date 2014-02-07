@@ -101,7 +101,7 @@ def _form_response(role, origin, response, timestamp):
     return '''<?xml version='1.0' encoding='UTF-8'?><trn:Transport role="''' + role + '''" version="1.0" xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1 http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>''' + origin + '''</Origin><Response>''' + response + '''</Response><TimeStamp>''' + timestamp + '''</TimeStamp></trn:Transport>'''
 
 
-def _ingest_packet(sock, ivorn, handlers, log):
+def _ingest_packet(sock, ivorn, handler, log):
     # Receive payload
     payload = _recv_packet(sock)
     log.debug("received packet of %d bytes", len(payload))
@@ -122,13 +122,13 @@ def _ingest_packet(sock, ivorn, handlers, log):
         log.info("received VOEvent")
         _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
         log.debug("sent receipt response")
-        for handler in handlers:
+        if handler is not None:
             handler(payload, root)
     else:
         log.error("received XML document with unrecognized root tag: %s", root.tag)
 
 
-def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150, max_reconnect_timeout=1024, handlers=(), log=None):
+def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150, max_reconnect_timeout=1024, handler=None, log=None):
     if log is None:
         log = logging.getLogger('gcn.listen')
 
@@ -137,7 +137,7 @@ def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/an
 
         try:
             while True:
-                _ingest_packet(sock, ivorn, handlers, log)
+                _ingest_packet(sock, ivorn, handler, log)
         except socket.timeout:
             log.warn("timed out")
         finally:

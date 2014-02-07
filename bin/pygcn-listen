@@ -53,4 +53,4 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Listen for GCN notices (until interrupted or killed)
-gcn.listen(host=host, port=port, handlers=[gcn.handlers.archive])
+gcn.listen(host=host, port=port, handler=gcn.handlers.archive)
