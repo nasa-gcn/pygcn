@@ -15,7 +15,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
-Anonymous VOEvent client for receiving GCNs in XML format.
+Anonymous VOEvent client for receiving GCNs in XML format, implementing the
+VOEvent Transport Protocol <http://www.ivoa.net/documents/VOEventTransport>.
 """
 __author__ = "Leo Singer <leo.singer@ligo.org>"
 
@@ -41,7 +42,7 @@ def _get_now_iso8601():
 def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
     """Establish a connection. Wait 1 second after the first failed attempt.
     Double the timeout after each failed attempt thereafter, until the
-    timeout reaches MAX_RECONNECT_TIMEOUT."""
+    timeout reaches MAX_RECONNECT_TIMEOUT. Return the new, connected socket."""
     reconnect_timeout = 1
     while True:
         try:
@@ -72,6 +73,7 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
 
 
 def _recvall(sock, n):
+    """Read exactly n bytes from a socket and return as a buffer."""
     ba = bytearray(n)
     mv = memoryview(ba)
     while n > 0:
@@ -82,6 +84,8 @@ def _recvall(sock, n):
 
 
 def _recv_packet(sock):
+    """Read a length-prefixed VOEvent Transport Protocol packet and return the
+    payload."""
     # Receive and unpack size of payload to follow
     payload_len, = _size_struct.unpack_from(sock.recv(4))
 
@@ -90,6 +94,8 @@ def _recv_packet(sock):
 
 
 def _send_packet(sock, payload):
+    """Send an array of bytes as a length-prefixed VOEvent Transport Protocol
+    packet."""
     # Send size of payload to follow
     sock.sendall(_size_struct.pack(len(payload)))
 
@@ -98,10 +104,15 @@ def _send_packet(sock, payload):
 
 
 def _form_response(role, origin, response, timestamp):
+    """Form a VOEvent Transport Protocol packet suitable for sending an `ack`
+    or `iamalive` response."""
     return '''<?xml version='1.0' encoding='UTF-8'?><trn:Transport role="''' + role + '''" version="1.0" xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1 http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>''' + origin + '''</Origin><Response>''' + response + '''</Response><TimeStamp>''' + timestamp + '''</TimeStamp></trn:Transport>'''
 
 
 def _ingest_packet(sock, ivorn, handler, log):
+    """Ingest one VOEvent Transport Protocol packet and act on it, first sending
+    the appropriate response and then calling the handler if the payload is a
+    VOEvent."""
     # Receive payload
     payload = _recv_packet(sock)
     log.debug("received packet of %d bytes", len(payload))
@@ -129,6 +140,27 @@ def _ingest_packet(sock, ivorn, handler, log):
 
 
 def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150, max_reconnect_timeout=1024, handler=None, log=None):
+    """Connect to a VOEvent Transport Protocol server on the given `host` and
+    `port`, then listen for VOEvents until interrupted (i.e., by a keyboard
+    interrupt, `SIGINTR`, or `SIGTERM`).
+
+    In response packets, this client is identified by `ivorn`.
+
+    If `iamalive_timeout` seconds elapse without any packets from the server,
+    it is assumed that the connection has been dropped; the client closes the
+    connection and attempts to re-open it, retrying with an exponential backoff
+    up to a maximum timeout of `max_reconnect_timeout` seconds.
+
+    If `handler` is provided, it should be a callable that takes two arguments,
+    the raw VOEvent payload and the ElementTree root object of the XML
+    document. The `handler` callable will be invoked once for each incoming
+    VOEvent. See also `gcn.handlers` for some example handlers.
+
+    If `log` is provided, it should be an instance of `logging.Logger` and is
+    used for reporting the client's status. If `log` is not provided, a default
+    logger will be used.
+
+    Note that this function does not return."""
     if log is None:
         log = logging.getLogger('gcn.listen')
 
