@@ -134,7 +134,10 @@ def _ingest_packet(sock, ivorn, handler, log):
         _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
         log.debug("sent receipt response")
         if handler is not None:
-            handler(payload, root)
+            try:
+                handler(payload, root)
+            except:
+                log.exception("exception in payload handler")
     else:
         log.error("received XML document with unrecognized root tag: %s", root.tag)
 
