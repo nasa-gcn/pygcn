@@ -24,6 +24,30 @@ import logging
 import urllib
 
 
+class include_notice_types(object):
+    """Process only VOEvents whose integer GCN packet types are in
+    `included`."""
+    def __init__(self, included, handler):
+        self.included = included
+        self.handler = handler
+    def __call__(self, payload, root):
+        packet_type = int(root.find("./What/Param[@name='Packet_Type']").attrib['value'])
+        if packet_type in self.included:
+            self.handler(payload, root)
+
+
+class exclude_notice_types(object):
+    """Process only VOEvents whose integer GCN packet types are not in
+    `excluded`."""
+    def __init__(self, excluded, handler):
+        self.excluded = excluded
+        self.handler = handler
+    def __call__(self, payload, root):
+        packet_type = int(root.find("./What/Param[@name='Packet_Type']").attrib['value'])
+        if packet_type not in self.excluded:
+            self.handler(payload, root)
+
+
 def archive(payload, root):
     """Payload handler that archives VOEvent messages as files in the current
     working directory. The filename is a URL-escaped version of the messages'
@@ -32,5 +56,5 @@ def archive(payload, root):
     filename = urllib.quote_plus(ivorn)
     with open(filename, "w") as f:
         f.write(payload)
-    logging.getLogger('archive').info("archived %s", ivorn)
+    logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
 
