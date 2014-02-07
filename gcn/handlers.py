@@ -24,28 +24,44 @@ import logging
 import urllib
 
 
-class include_notice_types(object):
+def include_notice_types(*notice_types):
     """Process only VOEvents whose integer GCN packet types are in
-    `included`."""
-    def __init__(self, included, handler):
-        self.included = included
-        self.handler = handler
-    def __call__(self, payload, root):
-        packet_type = int(root.find("./What/Param[@name='Packet_Type']").attrib['value'])
-        if packet_type in self.included:
-            self.handler(payload, root)
+    `notice_types`. Should be used as a decorator, as in:
+
+        import gcn.handlers
+        import gcn.notice_types a n
+
+        @gcn.handlers.include_notice_types(n.FERMI_GBM_GND_POS, n.FERMI_GBM_FIN_POS)
+        def handle(payload, root):
+            print 'Got a notice of type FERMI_GBM_GND_POS or FERMI_GBM_FIN_POS'
+    """
+    notice_types = frozenset(notice_types)
+    def decorate(handler):
+        def handle(payload, root):
+            if int(root.find("./What/Param[@name='Packet_Type']").attrib['value']) in notice_types:
+                handler(payload, root)
+        return handle
+    return decorate
 
 
-class exclude_notice_types(object):
+def exclude_notice_types(*notice_types):
     """Process only VOEvents whose integer GCN packet types are not in
-    `excluded`."""
-    def __init__(self, excluded, handler):
-        self.excluded = excluded
-        self.handler = handler
-    def __call__(self, payload, root):
-        packet_type = int(root.find("./What/Param[@name='Packet_Type']").attrib['value'])
-        if packet_type not in self.excluded:
-            self.handler(payload, root)
+    `notice_types`. Should be used as a decorator, as in:
+
+        import gcn.handlers
+        import gcn.notice_types a n
+
+        @gcn.handlers.exclude_notice_types(n.FERMI_GBM_GND_POS, n.FERMI_GBM_FIN_POS)
+        def handle(payload, root):
+            print 'Got a notice not of type FERMI_GBM_GND_POS or FERMI_GBM_FIN_POS'
+    """
+    notice_types = frozenset(notice_types)
+    def decorate(handler):
+        def handle(payload, root):
+            if int(root.find("./What/Param[@name='Packet_Type']").attrib['value']) not in notice_types:
+                handler(payload, root)
+        return handle
+    return decorate
 
 
 def archive(payload, root):
