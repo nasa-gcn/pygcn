@@ -39,9 +39,9 @@ def _get_now_iso8601():
 
 
 def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
-    # Establish a connection. Wait 1 second after the first failed attempt.
-    # Double the timeout after each failed attempt thereafter, until the
-    # timeout reaches MAX_RECONNECT_TIMEOUT.
+    """Establish a connection. Wait 1 second after the first failed attempt.
+    Double the timeout after each failed attempt thereafter, until the
+    timeout reaches MAX_RECONNECT_TIMEOUT."""
     reconnect_timeout = 1
     while True:
         try:
