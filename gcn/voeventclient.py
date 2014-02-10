@@ -206,3 +206,43 @@ def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/an
                 log.exception("could not close socket")
             else:
                 log.info("closed socket")
+
+
+def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None):
+    """Rudimentary GCN server, for testing purposes. Serves just one connection
+    at a time, and repeats the same payloads in order, repeating, for each
+    connection."""
+    if log is None:
+        log = logging.getLogger('gcn.serve')
+
+    sock = socket.socket()
+    try:
+        sock.bind((host, port))
+        log.info("bound to %s:%d", host, port)
+        sock.listen(0)
+        while True:
+            conn, addr = sock.accept()
+            log.info("connected to %s:%d", addr, port)
+            try:
+                i = 0
+                while True:
+                    _send_packet(conn, payloads[i])
+                    i += 1
+                    i %= len(payloads)
+                    time.sleep(retransmit_timeout)
+            except socket.error:
+                log.exception('error communicating with peer')
+            finally:
+                try:
+                    conn.shutdown(socket.SHUT_RDWR)
+                except socket.error:
+                    log.exception("could not shut down socket")
+
+                try:
+                    conn.close()
+                except socket.error:
+                    log.exception("could not close socket")
+                else:
+                    log.info("closed socket")
+    finally:
+        sock.close()

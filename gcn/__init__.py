@@ -34,4 +34,4 @@ TCP/IP VOEvent Transport Protocol
 __author__ = "Leo Singer <leo.singer@ligo.org>"
 
 
-from .voeventclient import listen
+from .voeventclient import listen, serve

@@ -39,5 +39,5 @@ setup(
     license='GPL-2+',
     url='https://github.com/lpsinger/pygcn',
     packages=['gcn'],
-    scripts=['bin/pygcn-listen']
+    scripts=['bin/pygcn-listen', 'bin/pygcn-serve']
 )

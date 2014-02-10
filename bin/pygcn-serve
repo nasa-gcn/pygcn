@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2014  Leo Singer
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+"""
+Rudimentary GCN server, for testing purposes. Serves just one connection at a
+time, and repeats the same payloads in order, repeating, for each connection.
+"""
+__author__ = "Leo Singer <leo.singer@ligo.org>"
+
+# Command line interface
+DEFAULT_HOST = '127.0.0.1'
+DEFAULT_PORT = 8099
+from optparse import Option, OptionParser
+parser = OptionParser(
+    description=__doc__,
+    usage='%prog [options] PAYLOAD1.xml [PAYLOAD2.xml [PAYLOAD3.xml [...]]]',
+    option_list=[
+        Option('--host', metavar='HOST[:PORT]', default='{0}:{1}'.format(DEFAULT_HOST, DEFAULT_PORT),
+            help='Host name [default: %default]'),
+        Option('--retransmit-timeout', '-t', metavar='SECONDS', type=int, default=1,
+            help='Delay between packets [default: %default]')
+    ])
+opts, args = parser.parse_args()
+if opts.host is None:
+    host = DEFAULT_HOST
+    port = DEFAULT_PORT
+else:
+    host, _, port = opts.host.partition(':')
+    if port:
+        try:
+            port = int(port)
+        except ValueError:
+            parser.error('invalid hostname: "{0}"'.format(opts.host))
+    else:
+        port = DEFAULT_PORT
+payloads = [open(arg).read() for arg in args]
+if not payloads:
+    parser.error('not enough command line arguments')
+
+# Imports
+import gcn
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.INFO)
+
+# Serve GCN notices (until interrupted or killed)
+gcn.serve(payloads, host=host, port=port, retransmit_timeout=opts.retransmit_timeout)
