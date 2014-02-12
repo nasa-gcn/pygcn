@@ -20,7 +20,7 @@ import gcn
 
 setup(
     name='pygcn',
-    version='0.1',
+    version='0.1.1',
     author='Leo Singer',
     author_email='leo.singer@ligo.org',
     description=gcn.__doc__.splitlines()[1],
