@@ -76,7 +76,7 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
             return sock
 
 
-# memoryview was introduced in Python 2.7. If memoryview is not definide,
+# memoryview was introduced in Python 2.7. If memoryview is not defined,
 # fall back to an implementation that concatenates read-only buffers.
 try:
     memoryview
