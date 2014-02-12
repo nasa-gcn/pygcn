@@ -76,15 +76,30 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
             return sock
 
 
-def _recvall(sock, n):
-    """Read exactly n bytes from a socket and return as a buffer."""
-    ba = bytearray(n)
-    mv = memoryview(ba)
-    while n > 0:
-        nreceived = sock.recv_into(mv, n)
-        n -= nreceived
-        mv = mv[nreceived:]
-    return buffer(ba)
+# memoryview was introduced in Python 2.7. If memoryview is not definide,
+# fall back to an implementation that concatenates read-only buffers.
+try:
+    memoryview
+
+    def _recvall(sock, n):
+        """Read exactly n bytes from a socket and return as a buffer."""
+        ba = bytearray(n)
+        mv = memoryview(ba)
+        while n > 0:
+            nreceived = sock.recv_into(mv, n)
+            n -= nreceived
+            mv = mv[nreceived:]
+        return buffer(ba)
+except NameError:
+    def _recvall(sock, n):
+        """Read exactly n bytes from a socket and return as a buffer."""
+        data = buffer(sock.recv(n))
+        n -= len(data)
+        while n > 0:
+            newdata = buffer(sock.recv(n))
+            n -= len(newdata)
+            data += newdata
+        return data
 
 
 def _recv_packet(sock):
@@ -133,7 +148,7 @@ def _ingest_packet(sock, ivorn, handler, log):
             log.debug("sent iamalive response")
         else:
             log.error("received transport message with unrecognized role: %s", root.attrib["role"])
-    elif root.tag in {"{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent", "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent"}:
+    elif root.tag in ("{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent", "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent"):
         log.info("received VOEvent")
         _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
         log.debug("sent receipt response")
