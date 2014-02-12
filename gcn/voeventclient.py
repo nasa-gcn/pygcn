@@ -24,7 +24,11 @@ __author__ = "Leo Singer <leo.singer@ligo.org>"
 import socket
 import struct
 import time
-import xml.etree.cElementTree as ElementTree
+# Prefer lxml.etree over xml.etree (it's faster)
+try:
+    from lxml import etree as ElementTree
+except ImportError:
+    import xml.etree.cElementTree as ElementTree
 import logging
 import datetime
 
@@ -114,7 +118,7 @@ def _ingest_packet(sock, ivorn, handler, log):
     the appropriate response and then calling the handler if the payload is a
     VOEvent."""
     # Receive payload
-    payload = _recv_packet(sock)
+    payload = str(_recv_packet(sock))
     log.debug("received packet of %d bytes", len(payload))
     log.debug("payload is:\n%s", payload)
 
