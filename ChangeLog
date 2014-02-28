@@ -1,0 +1,30 @@
+Changelog
+=========
+
+0.1.2 (2014-02-27)
+------------------
+
+- Print error and recover if VOEvent message has no ivorn. [Leo Singer]
+
+- Recover from malformed XML packets. [Leo Singer]
+
+  If a malformed XML packet is received, log its base64-encoded content
+  for debugging purposes and then reconnect.
+
+- Add rudimentary server. [Leo Singer]
+
+- Fix spelling error. [Leo Singer]
+
+0.1.1 (2014-02-12)
+------------------
+
+- Fix Python 2.6 compatibility. [Leo Singer]
+
+- Prefer lxml.etree over xml.etree. [Leo Singer]
+
+  It's faster.
+
+0.1 (2014-02-07)
+----------------
+
+- First release. [Leo Singer]
