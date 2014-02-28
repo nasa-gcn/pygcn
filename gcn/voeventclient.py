@@ -159,13 +159,16 @@ def _ingest_packet(sock, ivorn, handler, log):
                 log.error("received transport message with unrecognized role: %s", root.attrib["role"])
         elif root.tag in ("{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent", "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent"):
             log.info("received VOEvent")
-            _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
-            log.debug("sent receipt response")
-            if handler is not None:
-                try:
-                    handler(payload, root)
-                except:
-                    log.exception("exception in payload handler")
+            if 'ivorn' not in root.attrib:
+                log.error("received voevent message without ivorn")
+            else:
+                _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
+                log.debug("sent receipt response")
+                if handler is not None:
+                    try:
+                        handler(payload, root)
+                    except:
+                        log.exception("exception in payload handler")
         else:
             log.error("received XML document with unrecognized root tag: %s", root.tag)
 
