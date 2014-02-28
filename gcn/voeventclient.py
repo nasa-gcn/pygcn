@@ -27,10 +27,13 @@ import time
 # Prefer lxml.etree over xml.etree (it's faster)
 try:
     from lxml import etree as ElementTree
+    from lxml import XMLSyntaxError
 except ImportError:
     import xml.etree.cElementTree as ElementTree
+    from xml.etree.cElementTree import ParseError as XMLSyntaxError
 import logging
 import datetime
+import base64
 
 
 # Buffer for storing message size
@@ -138,27 +141,33 @@ def _ingest_packet(sock, ivorn, handler, log):
     log.debug("payload is:\n%s", payload)
 
     # Parse payload and act on it
-    root = ElementTree.fromstring(payload)
-    if root.tag == "{http://telescope-networks.org/schema/Transport/v1.1}Transport":
-        if "role" not in root.attrib:
-            log.error("receieved transport message without a role")
-        elif root.attrib["role"] == "iamalive":
-            log.debug("received iamalive message")
-            _send_packet(sock, _form_response("iamalive", root.find("Origin").text, ivorn, _get_now_iso8601()))
-            log.debug("sent iamalive response")
-        else:
-            log.error("received transport message with unrecognized role: %s", root.attrib["role"])
-    elif root.tag in ("{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent", "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent"):
-        log.info("received VOEvent")
-        _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
-        log.debug("sent receipt response")
-        if handler is not None:
-            try:
-                handler(payload, root)
-            except:
-                log.exception("exception in payload handler")
+    try:
+        root = ElementTree.fromstring(payload)
+    except XMLSyntaxError:
+        log.exception("failed to parse XML, base64-encoded payload is:\n%s",
+            base64.b64encode(payload))
+        raise
     else:
-        log.error("received XML document with unrecognized root tag: %s", root.tag)
+        if root.tag == "{http://telescope-networks.org/schema/Transport/v1.1}Transport":
+            if "role" not in root.attrib:
+                log.error("receieved transport message without a role")
+            elif root.attrib["role"] == "iamalive":
+                log.debug("received iamalive message")
+                _send_packet(sock, _form_response("iamalive", root.find("Origin").text, ivorn, _get_now_iso8601()))
+                log.debug("sent iamalive response")
+            else:
+                log.error("received transport message with unrecognized role: %s", root.attrib["role"])
+        elif root.tag in ("{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent", "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent"):
+            log.info("received VOEvent")
+            _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
+            log.debug("sent receipt response")
+            if handler is not None:
+                try:
+                    handler(payload, root)
+                except:
+                    log.exception("exception in payload handler")
+        else:
+            log.error("received XML document with unrecognized root tag: %s", root.tag)
 
 
 def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150, max_reconnect_timeout=1024, handler=None, log=None):
@@ -194,6 +203,8 @@ def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/an
                 _ingest_packet(sock, ivorn, handler, log)
         except socket.timeout:
             log.warn("timed out")
+        except XMLSyntaxError:
+            log.warn("XML syntax error")
         finally:
             try:
                 sock.shutdown(socket.SHUT_RDWR)
