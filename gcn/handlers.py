@@ -49,7 +49,7 @@ def exclude_notice_types(*notice_types):
     `notice_types`. Should be used as a decorator, as in:
 
         import gcn.handlers
-        import gcn.notice_types a n
+        import gcn.notice_types as n
 
         @gcn.handlers.exclude_notice_types(n.FERMI_GBM_GND_POS, n.FERMI_GBM_FIN_POS)
         def handle(payload, root):
