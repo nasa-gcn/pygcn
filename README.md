@@ -16,3 +16,5 @@ This package implements a simple client that anonymously listens for VOEvent
 (http://www.ivoa.net/documents/VOEvent) XML format notices over the custom
 TCP/IP VOEvent Transport Protocol
 (http://www.ivoa.net/documents/Notes/VOEventTransport).
+
+[![Build Status](https://travis-ci.org/lpsinger/pygcn.svg?branch=master)](https://travis-ci.org/lpsinger/pygcn)
