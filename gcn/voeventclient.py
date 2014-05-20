@@ -30,7 +30,10 @@ try:
     from lxml import XMLSyntaxError
 except ImportError:
     import xml.etree.cElementTree as ElementTree
-    from xml.etree.cElementTree import ParseError as XMLSyntaxError
+    try:
+        from xml.etree.cElementTree import ParseError as XMLSyntaxError
+    except ImportError: # Python 2.6 raises a different exception
+        from xml.parsers.expat import ExpatError as XMLSyntaxError
 import logging
 import datetime
 import base64
