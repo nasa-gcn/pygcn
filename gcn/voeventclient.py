@@ -89,9 +89,9 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
 # memoryview was introduced in Python 2.7. If memoryview is not defined,
 # fall back to an implementation that concatenates read-only buffers.
 try:
-    buffer
+    bytes
 except NameError:
-    buffer = bytes
+    bytes = buffer
 try:
     memoryview
 
@@ -117,7 +117,7 @@ try:
 
             n -= nreceived
             mv = mv[nreceived:]
-        return buffer(ba)
+        return bytes(ba)
 except NameError:
     def _recvall(sock, n):
         """Read exactly n bytes from a socket and return as a buffer."""
@@ -140,7 +140,7 @@ except NameError:
 
             n -= len(newdata)
             data += newdata
-        return buffer(data)
+        return bytes(data)
 
 
 def _recv_packet(sock):
