@@ -1,0 +1,17 @@
+language: python
+env:
+  - USE_LXML=true
+  - USE_LXML=false
+python:
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+matrix:
+  exclude:
+    - python: "2.6"
+      env: USE_LXML=false
+before_install:
+  - if $USE_LXML; then pip install lxml; fi
+install: python setup.py build
+script: python setup.py test
