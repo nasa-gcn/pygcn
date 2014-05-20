@@ -26,10 +26,14 @@ import struct
 import time
 # Prefer lxml.etree over xml.etree (it's faster)
 try:
-    from lxml import etree as ElementTree
-    from lxml import XMLSyntaxError
+    import lxml.etree
+    import io
+    def parse_from_string(text):
+        return lxml.etree.parse(io.BytesIO(text)).getroot()
+    from lxml.etree import XMLSyntaxError
 except ImportError:
-    import xml.etree.cElementTree as ElementTree
+    import xml.etree.cElementTree
+    parse_from_string = xml.etree.cElementTree.fromstring
     try:
         from xml.etree.cElementTree import ParseError as XMLSyntaxError
     except ImportError: # Python 2.6 raises a different exception
@@ -85,6 +89,10 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
 # memoryview was introduced in Python 2.7. If memoryview is not defined,
 # fall back to an implementation that concatenates read-only buffers.
 try:
+    buffer
+except NameError:
+    buffer = bytes
+try:
     memoryview
 
     def _recvall(sock, n):
@@ -121,7 +129,7 @@ except NameError:
             if time.clock() - start > timeout:
                 raise socket.timeout(
                     'timed out while trying to read {0} bytes'.format(n))
-            newdata = buffer(sock.recv(n))
+            newdata = sock.recv(n)
 
             # According to the POSIX specification
             # http://pubs.opengroup.org/onlinepubs/009695399/functions/recv.html
@@ -132,7 +140,7 @@ except NameError:
 
             n -= len(newdata)
             data += newdata
-        return data
+        return buffer(data)
 
 
 def _recv_packet(sock):
@@ -158,7 +166,11 @@ def _send_packet(sock, payload):
 def _form_response(role, origin, response, timestamp):
     """Form a VOEvent Transport Protocol packet suitable for sending an `ack`
     or `iamalive` response."""
-    return '''<?xml version='1.0' encoding='UTF-8'?><trn:Transport role="''' + role + '''" version="1.0" xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1 http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>''' + origin + '''</Origin><Response>''' + response + '''</Response><TimeStamp>''' + timestamp + '''</TimeStamp></trn:Transport>'''
+    return ('''<?xml version='1.0' encoding='UTF-8'?><trn:Transport role="'''
+        + role + '''" version="1.0" xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1 http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>'''
+        + origin + '''</Origin><Response>''' + response
+        + '''</Response><TimeStamp>''' + timestamp
+        + '''</TimeStamp></trn:Transport>''').encode('UTF-8')
 
 
 def _ingest_packet(sock, ivorn, handler, log):
@@ -166,13 +178,13 @@ def _ingest_packet(sock, ivorn, handler, log):
     the appropriate response and then calling the handler if the payload is a
     VOEvent."""
     # Receive payload
-    payload = str(_recv_packet(sock))
+    payload = _recv_packet(sock)
     log.debug("received packet of %d bytes", len(payload))
     log.debug("payload is:\n%s", payload)
 
     # Parse payload and act on it
     try:
-        root = ElementTree.fromstring(payload)
+        root = parse_from_string(payload)
     except XMLSyntaxError:
         log.exception("failed to parse XML, base64-encoded payload is:\n%s",
             base64.b64encode(payload))

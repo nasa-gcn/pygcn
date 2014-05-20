@@ -125,7 +125,7 @@ payloads = ['''<?xml version = '1.0' encoding = 'UTF-8'?>
   <Description>
   </Description>
 </voe:VOEvent>
-''',
+'''.encode('UTF-8'),
 '''<?xml version = '1.0' encoding = 'UTF-8'?>
 <voe:VOEvent
       ivorn="ivo://nasa.gsfc.gcn/gcn"
@@ -138,7 +138,7 @@ payloads = ['''<?xml version = '1.0' encoding = 'UTF-8'?>
     <Param name="Packet_Type" value="4" />
   </What>
 </voe:VOEvent>
-''']
+'''.encode('UTF-8')]
 
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None):
