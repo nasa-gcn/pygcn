@@ -5,3 +5,5 @@ dist
 *.db
 *~
 ._*
+*.egg-info
+*.egg
