@@ -15,7 +15,15 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-from distutils.core import setup
+# Bootstrap setuptools installation.
+try:
+    import pkg_resources
+    pkg_resources.require("setuptools >= 0.7")
+except:
+    from ez_setup import use_setuptools
+    use_setuptools()
+
+from setuptools import setup
 import gcn
 
 setup(
@@ -39,5 +47,7 @@ setup(
     license='GPL-2+',
     url='https://github.com/lpsinger/pygcn',
     packages=['gcn'],
-    scripts=['bin/pygcn-listen', 'bin/pygcn-serve']
+    scripts=['bin/pygcn-listen', 'bin/pygcn-serve'],
+    test_suite='nose.collector',
+    tests_require=['nose']
 )
