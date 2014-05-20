@@ -88,18 +88,45 @@ try:
         """Read exactly n bytes from a socket and return as a buffer."""
         ba = bytearray(n)
         mv = memoryview(ba)
+        timeout = sock.gettimeout()
+        start = time.clock()
+
         while n > 0:
+            if time.clock() - start > timeout:
+                raise socket.timeout(
+                    'timed out while trying to read {0} bytes'.format(n))
             nreceived = sock.recv_into(mv, n)
+
+            # According to the POSIX specification
+            # http://pubs.opengroup.org/onlinepubs/009695399/functions/recv.html
+            # "If no messages are available to be received and the peer has
+            # performed an orderly shutdown, recv() shall return 0."
+            if nreceived == 0:
+                raise socket.error('connection closed by peer')
+
             n -= nreceived
             mv = mv[nreceived:]
         return buffer(ba)
 except NameError:
     def _recvall(sock, n):
         """Read exactly n bytes from a socket and return as a buffer."""
-        data = buffer(sock.recv(n))
-        n -= len(data)
+        data = bytearray()
+        timeout = sock.gettimeout()
+        start = time.clock()
+
         while n > 0:
+            if time.clock() - start > timeout:
+                raise socket.timeout(
+                    'timed out while trying to read {0} bytes'.format(n))
             newdata = buffer(sock.recv(n))
+
+            # According to the POSIX specification
+            # http://pubs.opengroup.org/onlinepubs/009695399/functions/recv.html
+            # "If no messages are available to be received and the peer has
+            # performed an orderly shutdown, recv() shall return 0."
+            if len(newdata) == 0:
+                raise socket.error('connection closed by peer')
+
             n -= len(newdata)
             data += newdata
         return data
@@ -109,7 +136,7 @@ def _recv_packet(sock):
     """Read a length-prefixed VOEvent Transport Protocol packet and return the
     payload."""
     # Receive and unpack size of payload to follow
-    payload_len, = _size_struct.unpack_from(sock.recv(4))
+    payload_len, = _size_struct.unpack_from(_recvall(sock, 4))
 
     # Receive payload
     return _recvall(sock, payload_len)
@@ -206,6 +233,8 @@ def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/an
                 _ingest_packet(sock, ivorn, handler, log)
         except socket.timeout:
             log.warn("timed out")
+        except socket.error:
+            log.exception("socket error")
         except XMLSyntaxError:
             log.warn("XML syntax error")
         finally:
