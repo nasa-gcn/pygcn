@@ -1,7 +1,13 @@
 Changelog
 =========
 
+0.1.6 (2015-03-26)
+------------------
+
+- Update setuptools bootstrap script. [Leo Singer]
+
 0.1.5 (2015-03-26)
+------------------
 
 - Add LIGO/Virgo notice types. [Leo Singer]
 
