@@ -292,9 +292,19 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None)
                 log.exception('error communicating with peer')
             finally:
                 try:
+                    conn.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER,
+                        struct.pack('ii', 1, 0))
+                except socket.error:
+                    log.exception('could not prepare to reset socket')
+                else:
+                    log.info('prepared to reset socket')
+
+                try:
                     conn.shutdown(socket.SHUT_RDWR)
                 except socket.error:
                     log.exception("could not shut down socket")
+                else:
+                    log.info("shut down socket")
 
                 try:
                     conn.close()
@@ -303,4 +313,9 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None)
                 else:
                     log.info("closed socket")
     finally:
-        sock.close()
+        try:
+            sock.close()
+        except socket.error:
+            log.exception('could not close listening socket')
+        else:
+            log.info("closed listening socket")
