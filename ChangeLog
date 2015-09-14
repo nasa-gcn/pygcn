@@ -1,6 +1,19 @@
 Changelog
 =========
 
+0.1.7 (2015-09-13)
+------------------
+
+- Cleanly shut down server socket. [Leo Singer]
+
+  This decreases or eliminates the prevalence of `Address already in use`
+  errors when the server is killed (e.g. via a `KeyboardInterrupt`) and
+  immediately restarted.
+
+- Add some log messages. [Leo Singer]
+
+- Update setuptools bootstrap script. [Leo Singer]
+
 0.1.6 (2015-03-26)
 ------------------
 
