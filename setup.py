@@ -34,7 +34,7 @@ if python_version_tuple == (2, 6) or python_version_tuple == (3, 1):
 
 setup(
     name='pygcn',
-    version='0.1.7',
+    version='0.1.8',
     author='Leo Singer',
     author_email='leo.singer@ligo.org',
     description=gcn.__doc__.splitlines()[1],
