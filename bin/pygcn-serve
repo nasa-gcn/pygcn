@@ -22,9 +22,13 @@ time, and repeats the same payloads in order, repeating, for each connection.
 """
 __author__ = "Leo Singer <leo.singer@ligo.org>"
 
-# Command line interface
+# Imports
 import argparse
+import logging
+import gcn
 from gcn.cmdline import HostPortAction
+
+# Command line interface
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--host', dest='addr',
                     default='127.0.0.1:8099', action=HostPortAction,
@@ -33,11 +37,9 @@ parser.add_argument('--retransmit-timeout', '-t', metavar='SECONDS',
                     type=int, default=1,
                     help='Delay between packets (default: %(default)s)')
 parser.add_argument('payloads', nargs='+', metavar='PAYLOAD.xml')
+parser.add_argument('--version', action='version',
+                    version='pygcn ' + gcn.__version__)
 args = parser.parse_args()
-
-# Imports
-import gcn
-import logging
 
 # Set up logger
 logging.basicConfig(level=logging.INFO)

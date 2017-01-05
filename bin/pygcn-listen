@@ -21,18 +21,20 @@ Example VOEvent listener that saves all incoming VOEvents to disk.
 """
 __author__ = "Leo Singer <leo.singer@ligo.org>"
 
-# Command line interface
+# Imports
 import argparse
+import logging
+import gcn
+import gcn.handlers
 from gcn.cmdline import HostPortAction
+
+# Command line interface
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('addr', default='68.169.57.253:8099', action=HostPortAction,
                     help='Server host and port (default: %(default)s)')
+parser.add_argument('--version', action='version',
+                    version='pygcn ' + gcn.__version__)
 args = parser.parse_args()
-
-# Imports
-import gcn
-import gcn.handlers
-import logging
 
 # Set up logger
 logging.basicConfig(level=logging.INFO)
