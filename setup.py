@@ -25,12 +25,6 @@ except:
 
 from setuptools import setup
 import gcn
-import sys
-
-install_requires = []
-python_version_tuple = sys.version_info[:2]
-if python_version_tuple == (2, 6) or python_version_tuple == (3, 1):
-    install_requires += ['lxml']
 
 setup(
     name='pygcn',
@@ -45,9 +39,7 @@ setup(
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)',
         'Operating System :: POSIX',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
@@ -60,6 +52,5 @@ setup(
     packages=['gcn'],
     scripts=['bin/pygcn-listen', 'bin/pygcn-serve'],
     test_suite='nose.collector',
-    tests_require=['nose'],
-    install_requires=install_requires
+    tests_require=['nose']
 )
