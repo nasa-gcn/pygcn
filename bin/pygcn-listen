@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2014  Leo Singer
+# Copyright (C) 2014-2016  Leo Singer
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,31 +18,16 @@
 #
 """
 Example VOEvent listener that saves all incoming VOEvents to disk.
-
-The default server is "68.169.57.253:8099".
 """
 __author__ = "Leo Singer <leo.singer@ligo.org>"
 
 # Command line interface
-DEFAULT_HOST = '68.169.57.253'
-DEFAULT_PORT = 8099
-from optparse import Option, OptionParser
-parser = OptionParser(description=__doc__, usage='%prog [options] [HOSTNAME[:PORT]]')
-opts, args = parser.parse_args()
-if len(args) == 0:
-    host = DEFAULT_HOST
-    port = DEFAULT_PORT
-elif len(args) == 1:
-    host, _, port = args[0].partition(':')
-    if port:
-        try:
-            port = int(port)
-        except ValueError:
-            parser.error('invalid hostname: "{0}"'.format(args[0]))
-    else:
-        port = DEFAULT_PORT
-else:
-    parser.error('too many command line arguments')
+import argparse
+from gcn.cmdline import HostPortAction
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('addr', default='68.169.57.253:8099', action=HostPortAction,
+                    help='Server host and port (default: %(default)s)')
+args = parser.parse_args()
 
 # Imports
 import gcn
@@ -53,4 +38,5 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 # Listen for GCN notices (until interrupted or killed)
-gcn.listen(host=host, port=port, handler=gcn.handlers.archive)
+gcn.listen(host=args.addr.host, port=args.addr.port,
+           handler=gcn.handlers.archive)
