@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.1.10 (2017-01-05)
+-------------------
+
+- Convert command line interface from optparse to argparse. [Leo Singer]
+
+- Add support for Python 3.5 and drop Python 2.6 and 3.1. [Leo Singer]
+
 0.1.9 (2016-07-31)
 ------------------
 
