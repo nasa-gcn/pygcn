@@ -9,6 +9,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
 before_install:
   - if $USE_LXML; then pip install lxml; fi
 install: python setup.py build
