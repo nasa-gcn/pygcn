@@ -86,61 +86,29 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
             return sock
 
 
-# memoryview was introduced in Python 2.7. If memoryview is not defined,
-# fall back to an implementation that concatenates read-only buffers.
-try:
-    bytes
-except NameError:
-    bytes = buffer
-try:
-    memoryview
+def _recvall(sock, n):
+    """Read exactly n bytes from a socket and return as a buffer."""
+    ba = bytearray(n)
+    mv = memoryview(ba)
+    timeout = sock.gettimeout()
+    start = time.clock()
 
-    def _recvall(sock, n):
-        """Read exactly n bytes from a socket and return as a buffer."""
-        ba = bytearray(n)
-        mv = memoryview(ba)
-        timeout = sock.gettimeout()
-        start = time.clock()
+    while n > 0:
+        if time.clock() - start > timeout:
+            raise socket.timeout(
+                'timed out while trying to read {0} bytes'.format(n))
+        nreceived = sock.recv_into(mv, n)
 
-        while n > 0:
-            if time.clock() - start > timeout:
-                raise socket.timeout(
-                    'timed out while trying to read {0} bytes'.format(n))
-            nreceived = sock.recv_into(mv, n)
+        # According to the POSIX specification
+        # http://pubs.opengroup.org/onlinepubs/009695399/functions/recv.html
+        # "If no messages are available to be received and the peer has
+        # performed an orderly shutdown, recv() shall return 0."
+        if nreceived == 0:
+            raise socket.error('connection closed by peer')
 
-            # According to the POSIX specification
-            # http://pubs.opengroup.org/onlinepubs/009695399/functions/recv.html
-            # "If no messages are available to be received and the peer has
-            # performed an orderly shutdown, recv() shall return 0."
-            if nreceived == 0:
-                raise socket.error('connection closed by peer')
-
-            n -= nreceived
-            mv = mv[nreceived:]
-        return bytes(ba)
-except NameError:
-    def _recvall(sock, n):
-        """Read exactly n bytes from a socket and return as a buffer."""
-        data = bytearray()
-        timeout = sock.gettimeout()
-        start = time.clock()
-
-        while n > 0:
-            if time.clock() - start > timeout:
-                raise socket.timeout(
-                    'timed out while trying to read {0} bytes'.format(n))
-            newdata = sock.recv(n)
-
-            # According to the POSIX specification
-            # http://pubs.opengroup.org/onlinepubs/009695399/functions/recv.html
-            # "If no messages are available to be received and the peer has
-            # performed an orderly shutdown, recv() shall return 0."
-            if len(newdata) == 0:
-                raise socket.error('connection closed by peer')
-
-            n -= len(newdata)
-            data += newdata
-        return bytes(data)
+        n -= nreceived
+        mv = mv[nreceived:]
+    return bytes(ba)
 
 
 def _recv_packet(sock):
