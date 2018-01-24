@@ -32,7 +32,7 @@ TCP/IP VOEvent Transport Protocol
 (http://www.ivoa.net/documents/Notes/VOEventTransport).
 """
 __author__ = "Leo Singer <leo.singer@ligo.org>"
-__version__ = '0.1.10'
+__version__ = '0.1.11'
 
 
 from .voeventclient import listen, serve
