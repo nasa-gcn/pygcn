@@ -15,14 +15,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-# Bootstrap setuptools installation.
-try:
-    import pkg_resources
-    pkg_resources.require("setuptools >= 0.7")
-except:
-    from ez_setup import use_setuptools
-    use_setuptools()
-
 from setuptools import setup
 import gcn
 
