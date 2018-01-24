@@ -1,13 +1,14 @@
+import logging
 import pkg_resources
-import threading
-import gcn
-import gcn.voeventclient
-import gcn.handlers
 import socket
+import threading
 import time
 
+from .. import listen
+from .. import voeventclient
+from ..handlers import include_notice_types
+
 # Set up logger
-import logging
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
@@ -32,7 +33,7 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None)
             try:
                 for payload in payloads:
                     time.sleep(retransmit_timeout)
-                    gcn.voeventclient._send_packet(conn, payload)
+                    voeventclient._send_packet(conn, payload)
             except socket.error:
                 log.exception('error communicating with peer')
             finally:
@@ -66,9 +67,9 @@ def test_reconnect_after_kill():
     handler = MessageCounter()
 
     client_thread = threading.Thread(
-        group=None, target=gcn.listen,
+        group=None, target=listen,
         kwargs=dict(host='127.0.0.1', max_reconnect_timeout=4,
-            handler=gcn.handlers.include_notice_types(111)(handler)))
+            handler=include_notice_types(111)(handler)))
     client_thread.daemon = True
     client_thread.start()
 
