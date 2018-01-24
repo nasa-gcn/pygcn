@@ -1,4 +1,4 @@
-# Copyright (C) 2014  Leo Singer
+# Copyright (C) 2014-2018  Leo Singer
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,33 +16,14 @@
 #
 
 from setuptools import setup
+import sys
 import gcn
 
-setup(
-    name='pygcn',
-    version=gcn.__version__,
-    author='Leo Singer',
-    author_email='leo.singer@ligo.org',
-    description=gcn.__doc__.splitlines()[1],
-    long_description=gcn.__doc__,
-    classifiers=[
-        'Development Status :: 3 - Alpha',
-        'Environment :: Console',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)',
-        'Operating System :: POSIX',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Topic :: Internet',
-        'Topic :: Scientific/Engineering :: Astronomy'
-    ],
-    license='GPL-2+',
-    url='https://github.com/lpsinger/pygcn',
-    packages=['gcn'],
-    scripts=['bin/pygcn-listen', 'bin/pygcn-serve'],
-    test_suite='nose.collector',
-    tests_require=['nose']
-)
+setup_requires = ['setuptools >= 30.3.0']
+if {'pytest', 'test', 'ptr'}.intersection(sys.argv):
+    setup_requires.append('pytest-runner')
+
+setup(description=gcn.__doc__.splitlines()[1],
+      long_description=gcn.__doc__,
+      version=gcn.__version__,
+      setup_requires=setup_requires)
