@@ -19,6 +19,9 @@ Utilities for command-line interface.
 """
 import argparse
 import collections
+import logging
+
+from . import handlers, listen, __version__
 
 
 class HostPort(collections.namedtuple('HostPort', 'host port')):
@@ -56,3 +59,49 @@ class HostPortAction(argparse._StoreAction):
         type = HostPortType(default_host, default_port)
         super(HostPortAction, self).__init__(
             *args, metavar=metavar, nargs=nargs, type=type, **kwargs)
+
+
+def listen_main(args=None):
+    """Example VOEvent listener that saves all incoming VOEvents to disk."""
+
+    # Command line interface
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('addr', default='68.169.57.253:8099',
+                        action=HostPortAction,
+                        help='Server host and port (default: %(default)s)')
+    parser.add_argument('--version', action='version',
+                        version='pygcn ' + __version__)
+    args = parser.parse_args(args)
+
+    # Set up logger
+    logging.basicConfig(level=logging.INFO)
+
+    # Listen for GCN notices (until interrupted or killed)
+    listen(host=args.addr.host, port=args.addr.port,
+           handler=handlers.archive)
+
+
+def serve_main(args=None):
+    """Rudimentary GCN server, for testing purposes. Serves just one connection
+    at a time, and repeats the same payloads in order, repeating, for each
+    connection."""
+
+    # Command line interface
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--host', dest='addr',
+                        default='127.0.0.1:8099', action=HostPortAction,
+                        help='Server host and port (default: %(default)s)')
+    parser.add_argument('--retransmit-timeout', '-t', metavar='SECONDS',
+                        type=int, default=1,
+                        help='Delay between packets (default: %(default)s)')
+    parser.add_argument('payloads', nargs='+', metavar='PAYLOAD.xml')
+    parser.add_argument('--version', action='version',
+                        version='pygcn ' + __version__)
+    args = parser.parse_args(args)
+
+    # Set up logger
+    logging.basicConfig(level=logging.INFO)
+
+    # Serve GCN notices (until interrupted or killed)
+    serve(args.payloads, host=args.addr.host, port=args.addr.port,
+          retransmit_timeout=args.retransmit_timeout)
