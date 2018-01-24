@@ -40,7 +40,7 @@ def test_exclude_notice_types():
 def test_archive(tmpdir):
     try:
         old_dir = os.getcwd()
-        os.chdir(tmpdir)
+        os.chdir(str(tmpdir))
 
         for payload in payloads:
             handlers.archive(payload, parse_from_string(payload))
