@@ -17,11 +17,13 @@
 """
 Payload handlers.
 """
-__author__ = "Leo Singer <leo.singer@ligo.org>"
-
 
 import logging
 from six.moves.urllib.parse import quote_plus
+
+
+def get_notice_type(root):
+    return int(root.find("./What/Param[@name='Packet_Type']").attrib['value'])
 
 
 def include_notice_types(*notice_types):
@@ -31,14 +33,16 @@ def include_notice_types(*notice_types):
         import gcn.handlers
         import gcn.notice_types as n
 
-        @gcn.handlers.include_notice_types(n.FERMI_GBM_GND_POS, n.FERMI_GBM_FIN_POS)
+        @gcn.handlers.include_notice_types(n.FERMI_GBM_GND_POS,
+                                           n.FERMI_GBM_FIN_POS)
         def handle(payload, root):
-            print 'Got a notice of type FERMI_GBM_GND_POS or FERMI_GBM_FIN_POS'
+            print('Got notice of type FERMI_GBM_GND_POS or FERMI_GBM_FIN_POS')
     """
     notice_types = frozenset(notice_types)
+
     def decorate(handler):
         def handle(payload, root):
-            if int(root.find("./What/Param[@name='Packet_Type']").attrib['value']) in notice_types:
+            if get_notice_type(root) in notice_types:
                 handler(payload, root)
         return handle
     return decorate
@@ -51,14 +55,17 @@ def exclude_notice_types(*notice_types):
         import gcn.handlers
         import gcn.notice_types as n
 
-        @gcn.handlers.exclude_notice_types(n.FERMI_GBM_GND_POS, n.FERMI_GBM_FIN_POS)
+        @gcn.handlers.exclude_notice_types(n.FERMI_GBM_GND_POS,
+                                           n.FERMI_GBM_FIN_POS)
         def handle(payload, root):
-            print 'Got a notice not of type FERMI_GBM_GND_POS or FERMI_GBM_FIN_POS'
+            print('Got notice not of type FERMI_GBM_GND_POS '
+                  'or FERMI_GBM_FIN_POS')
     """
     notice_types = frozenset(notice_types)
+
     def decorate(handler):
         def handle(payload, root):
-            if int(root.find("./What/Param[@name='Packet_Type']").attrib['value']) not in notice_types:
+            if get_notice_type(root) not in notice_types:
                 handler(payload, root)
         return handle
     return decorate
@@ -73,4 +80,3 @@ def archive(payload, root):
     with open(filename, 'wb') as f:
         f.write(payload)
     logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
-

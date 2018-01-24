@@ -1,4 +1,4 @@
-# Copyright (C) 2014  Leo Singer
+# Copyright (C) 2014-2018  Leo Singer
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,8 +17,6 @@
 """
 GCN Notice types, from <http://gcn.gsfc.nasa.gov/filtering.html>.
 """
-__author__ = "Leo Singer <leo.singer@ligo.org>"
-
 
 GRB_COORDS = 1
 TEST_COORDS = 2

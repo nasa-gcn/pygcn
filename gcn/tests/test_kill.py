@@ -15,7 +15,9 @@ log = logging.getLogger()
 payloads = [pkg_resources.resource_string(__name__, 'data/gbm_flt_pos.xml'),
             pkg_resources.resource_string(__name__, 'data/kill_socket.xml')]
 
-def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None):
+
+def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
+          log=None):
     """Rudimentary GCN server, for testing purposes. Serves just one connection
     at a time, and repeats the same payloads in order, repeating, for each
     connection."""
@@ -51,16 +53,21 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None)
     finally:
         sock.close()
 
+
 class MessageCounter(object):
+
     def __init__(self):
         self.count = 0
+
     def __call__(self, *args):
         self.count += 1
+
 
 def test_reconnect_after_kill():
     """Test that the client recovers if the server closes the connection."""
     server_thread = threading.Thread(
-        group=None, target=serve, args=(payloads,), kwargs=dict(retransmit_timeout=0.1))
+        group=None, target=serve, args=(payloads,),
+        kwargs=dict(retransmit_timeout=0.1))
     server_thread.daemon = True
     server_thread.start()
 
@@ -69,7 +76,7 @@ def test_reconnect_after_kill():
     client_thread = threading.Thread(
         group=None, target=listen,
         kwargs=dict(host='127.0.0.1', max_reconnect_timeout=4,
-            handler=include_notice_types(111)(handler)))
+                    handler=include_notice_types(111)(handler)))
     client_thread.daemon = True
     client_thread.start()
 

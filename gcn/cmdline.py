@@ -1,4 +1,4 @@
-# Copyright (C) 2016  Leo Singer
+# Copyright (C) 2016-2018  Leo Singer
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,9 +17,6 @@
 """
 Utilities for command-line interface.
 """
-__author__ = "Leo Singer <leo.singer@ligo.org>"
-
-
 import argparse
 import collections
 

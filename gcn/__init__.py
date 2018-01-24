@@ -1,4 +1,4 @@
-# Copyright (C) 2013  Leo Singer
+# Copyright (C) 2013-2018  Leo Singer
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -31,8 +31,8 @@ This package implements a simple client that anonymously listens for VOEvent
 TCP/IP VOEvent Transport Protocol
 (http://www.ivoa.net/documents/Notes/VOEventTransport).
 """
-__author__ = "Leo Singer <leo.singer@ligo.org>"
-__version__ = '0.1.11'
-
 
 from .voeventclient import listen, serve
+
+__all__ = ('listen', 'serve')
+__version__ = '0.1.11'

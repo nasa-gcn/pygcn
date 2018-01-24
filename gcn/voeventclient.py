@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2017  Leo Singer
+# Copyright (C) 2014-2018  Leo Singer
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -18,26 +18,25 @@
 Anonymous VOEvent client for receiving GCNs in XML format, implementing the
 VOEvent Transport Protocol <http://www.ivoa.net/documents/VOEventTransport>.
 """
-__author__ = "Leo Singer <leo.singer@ligo.org>"
 
-
+import base64
+import datetime
+import logging
 import socket
 import struct
 import time
+
 # Prefer lxml.etree over xml.etree (it's faster)
 try:
     import lxml.etree
     import io
+
     def parse_from_string(text):
         return lxml.etree.parse(io.BytesIO(text)).getroot()
     from lxml.etree import XMLSyntaxError
 except ImportError:
     from xml.etree.cElementTree import fromstring as parse_from_string
     from xml.etree.cElementTree import ParseError as XMLSyntaxError
-import logging
-import datetime
-import base64
-
 
 # Buffer for storing message size
 _size_struct = struct.Struct("!I")
@@ -76,7 +75,9 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
         except socket.error:
             if reconnect_timeout < max_reconnect_timeout:
                 reconnect_timeout <<= 1
-            log.exception("could not connect to %s:%d, will retry in %d seconds", host, port, reconnect_timeout)
+            log.exception(
+                'could not connect to %s:%d, will retry in %d seconds',
+                host, port, reconnect_timeout)
             time.sleep(reconnect_timeout)
         else:
             return sock
@@ -130,11 +131,17 @@ def _send_packet(sock, payload):
 def _form_response(role, origin, response, timestamp):
     """Form a VOEvent Transport Protocol packet suitable for sending an `ack`
     or `iamalive` response."""
-    return ('''<?xml version='1.0' encoding='UTF-8'?><trn:Transport role="'''
-        + role + '''" version="1.0" xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://telescope-networks.org/schema/Transport/v1.1 http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>'''
-        + origin + '''</Origin><Response>''' + response
-        + '''</Response><TimeStamp>''' + timestamp
-        + '''</TimeStamp></trn:Transport>''').encode('UTF-8')
+    return (
+        "<?xml version='1.0' encoding='UTF-8'?>"
+        '<trn:Transport role="' + role + '" version="1.0" '
+        'xmlns:trn="http://telescope-networks.org/schema/Transport/v1.1" '
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'xsi:schemaLocation="http://telescope-networks.org/schema/'
+        'Transport/v1.1 '
+        'http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>' +
+        origin + '</Origin><Response>' + response +
+        '</Response><TimeStamp>' + timestamp +
+        '</TimeStamp></trn:Transport>').encode('UTF-8')
 
 
 def _ingest_packet(sock, ivorn, handler, log):
@@ -151,24 +158,31 @@ def _ingest_packet(sock, ivorn, handler, log):
         root = parse_from_string(payload)
     except XMLSyntaxError:
         log.exception("failed to parse XML, base64-encoded payload is:\n%s",
-            base64.b64encode(payload))
+                      base64.b64encode(payload))
         raise
     else:
-        if root.tag == "{http://telescope-networks.org/schema/Transport/v1.1}Transport":
+        if root.tag == ('{http://telescope-networks.org/schema/Transport/v1.1}'
+                        'Transport'):
             if "role" not in root.attrib:
                 log.error("receieved transport message without a role")
             elif root.attrib["role"] == "iamalive":
                 log.debug("received iamalive message")
-                _send_packet(sock, _form_response("iamalive", root.find("Origin").text, ivorn, _get_now_iso8601()))
+                _send_packet(sock, _form_response("iamalive",
+                             root.find("Origin").text, ivorn,
+                             _get_now_iso8601()))
                 log.debug("sent iamalive response")
             else:
-                log.error("received transport message with unrecognized role: %s", root.attrib["role"])
-        elif root.tag in ("{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent", "{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent"):
+                log.error(
+                    'received transport message with unrecognized role: %s',
+                    root.attrib["role"])
+        elif root.tag in ('{http://www.ivoa.net/xml/VOEvent/v1.1}VOEvent',
+                          '{http://www.ivoa.net/xml/VOEvent/v2.0}VOEvent'):
             log.info("received VOEvent")
             if 'ivorn' not in root.attrib:
                 log.error("received voevent message without ivorn")
             else:
-                _send_packet(sock, _form_response("ack", root.attrib["ivorn"], ivorn, _get_now_iso8601()))
+                _send_packet(sock, _form_response("ack", root.attrib["ivorn"],
+                             ivorn, _get_now_iso8601()))
                 log.debug("sent receipt response")
                 if handler is not None:
                     try:
@@ -176,10 +190,13 @@ def _ingest_packet(sock, ivorn, handler, log):
                     except:
                         log.exception("exception in payload handler")
         else:
-            log.error("received XML document with unrecognized root tag: %s", root.tag)
+            log.error('received XML document with unrecognized root tag: %s',
+                      root.tag)
 
 
-def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150, max_reconnect_timeout=1024, handler=None, log=None):
+def listen(host="68.169.57.253", port=8099,
+           ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
+           max_reconnect_timeout=1024, handler=None, log=None):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
     `port`, then listen for VOEvents until interrupted (i.e., by a keyboard
     interrupt, `SIGINTR`, or `SIGTERM`).
@@ -205,7 +222,8 @@ def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/an
         log = logging.getLogger('gcn.listen')
 
     while True:
-        sock = _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log)
+        sock = _open_socket(host, port, iamalive_timeout,
+                            max_reconnect_timeout, log)
 
         try:
             while True:
@@ -230,7 +248,8 @@ def listen(host="68.169.57.253", port=8099, ivorn="ivo://python_voeventclient/an
                 log.info("closed socket")
 
 
-def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None):
+def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
+          log=None):
     """Rudimentary GCN server, for testing purposes. Serves just one connection
     at a time, and repeats the same payloads in order, repeating, for each
     connection."""
@@ -257,7 +276,7 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0, log=None)
             finally:
                 try:
                     conn.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER,
-                        struct.pack('ii', 1, 0))
+                                    struct.pack('ii', 1, 0))
                 except socket.error:
                     log.exception('could not prepare to reset socket')
                 else:

@@ -16,8 +16,7 @@ def test_include_notice_types():
 
     @handlers.include_notice_types(notice_types.FERMI_GBM_FLT_POS)
     def handler(payload, root):
-        t.append(
-            int(root.find("./What/Param[@name='Packet_Type']").attrib['value']))
+        t.append(handlers.get_notice_type(root))
 
     for payload in payloads:
         handler(payload, parse_from_string(payload))
@@ -30,8 +29,7 @@ def test_exclude_notice_types():
 
     @handlers.exclude_notice_types(notice_types.FERMI_GBM_FLT_POS)
     def handler(payload, root):
-        t.append(
-            int(root.find("./What/Param[@name='Packet_Type']").attrib['value']))
+        t.append(handlers.get_notice_type(root))
 
     for payload in payloads:
         handler(payload, parse_from_string(payload))
