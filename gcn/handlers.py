@@ -21,7 +21,7 @@ __author__ = "Leo Singer <leo.singer@ligo.org>"
 
 
 import logging
-import urllib
+from six.moves.urllib.parse import quote_plus
 
 
 def include_notice_types(*notice_types):
@@ -69,8 +69,8 @@ def archive(payload, root):
     working directory. The filename is a URL-escaped version of the messages'
     IVORN."""
     ivorn = root.attrib['ivorn']
-    filename = urllib.quote_plus(ivorn)
-    with open(filename, "w") as f:
+    filename = quote_plus(ivorn)
+    with open(filename, 'wb') as f:
         f.write(payload)
     logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
 
