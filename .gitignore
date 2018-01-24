@@ -1,9 +1,12 @@
-MANIFEST
-dist
+*.db
+*.egg
+*.egg-info
 *.pyc
 *.pyo
-*.db
 *~
+.cache
+.coverage.*
 ._*
-*.egg-info
-*.egg
+build
+dist
+htmlcov
