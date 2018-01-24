@@ -1,6 +1,20 @@
 Changelog
 =========
 
+0.1.12 (2018-01-24)
+-------------------
+
+- Make source PEP8 compliant. [Leo Singer]
+
+- Update list of GCN notice types. [Leo Singer]
+
+- Fix some lingering Python 3 issues. [Leo Singer]
+
+- Convert ``pygcn-listen`` and ``pygcn-serve`` from scripts into
+  console entry points. [Leo Singer]
+
+- Improve unit test coverage. [Leo Singer]
+
 0.1.11 (2018-01-24)
 -------------------
 
