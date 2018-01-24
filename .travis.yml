@@ -9,6 +9,6 @@ python:
   - "3.5"
   - "3.6"
 before_install:
-  - if $USE_LXML; then pip install lxml; fi
+  - pip install pytest-pep8 $(if $USE_LXML; then echo lxml; fi)
 install: python setup.py build
-script: python setup.py test
+script: python setup.py test --addopts='--pep8'
