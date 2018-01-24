@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.13 (2018-01-24)
+-------------------
+
+- Include missing test data in package. [Leo Singer]
+
 0.1.12 (2018-01-24)
 -------------------
 
