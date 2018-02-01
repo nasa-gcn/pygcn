@@ -21,26 +21,22 @@ VOEvent Transport Protocol <http://www.ivoa.net/documents/VOEventTransport>.
 
 import base64
 import datetime
+import io
 import logging
 import socket
 import struct
 import time
 
-# Prefer lxml.etree over xml.etree (it's faster)
-try:
-    import lxml.etree
-    import io
-
-    def parse_from_string(text):
-        return lxml.etree.parse(io.BytesIO(text)).getroot()
-    from lxml.etree import XMLSyntaxError
-except ImportError:
-    from xml.etree.cElementTree import fromstring as parse_from_string
-    from xml.etree.cElementTree import ParseError as XMLSyntaxError
+import lxml.etree
+from lxml.etree import XMLSyntaxError
 
 # Buffer for storing message size
 _size_struct = struct.Struct("!I")
 _size_len = _size_struct.size
+
+
+def parse_from_string(text):
+    return lxml.etree.parse(io.BytesIO(text)).getroot()
 
 
 def _get_now_iso8601():

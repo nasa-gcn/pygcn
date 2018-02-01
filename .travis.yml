@@ -1,14 +1,11 @@
 sudo: false
 language: python
-env:
-  - USE_LXML=true
-  - USE_LXML=false
 python:
   - "2.7"
   - "3.4"
   - "3.5"
   - "3.6"
 before_install:
-  - pip install pytest-pep8 $(if $USE_LXML; then echo lxml; fi)
+  - pip install pytest-pep8
 install: python setup.py build
 script: python setup.py test --addopts='--pep8'

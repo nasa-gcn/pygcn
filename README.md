@@ -38,8 +38,7 @@ and then type Control-C to quit.
 You can also write your own handler that performs a custom action for every GCN
 that is received. A handler function takes two arguments: `payload`, the raw
 content of the GCN, and `root`, the root element of the XML document as parsed
-by the Python standard library module [`xml.etree`][4] or if available the
-faster third-party package ['lxml.etree``][5]. Here is a basic example:
+by ['lxml.etree``][5]. Here is a basic example:
 
 ```python
 #!/usr/bin/env python
