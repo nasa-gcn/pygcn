@@ -33,6 +33,8 @@ simply run:
 
 and then type Control-C to quit.
 
+## Writing a custom GCN handler
+
 You can also write your own handler that performs a custom action for every GCN
 that is received. A handler function takes two arguments: `payload`, the raw
 content of the GCN, and `root`, the root element of the XML document as parsed
@@ -53,9 +55,10 @@ faster third-party package ['lxml.etree``][5]. Here is a basic example:
             value = param.attrib['value']
             print('{} = {}'.format(name, value))
 
-    # Listen for VOEvents, calling `handler` for each of them, until killed
-    # with Control-C.
+    # Listen for VOEvents until killed with Control-C.
     gcn.listen(handler=handler)
+
+## Filtering
 
 You can also filter events by notice type using
 `gcn.handlers.include_notice_types` or `gcn.handlers.exclude_notice_types`.
@@ -81,8 +84,7 @@ Here is an example:
         # Print.
         print('ra = {:g}, dec={:g}, radius={:g}'.format(ra, dec, radius))
 
-    # Listen for VOEvents, calling `handler` for each of them, until killed
-    # with Control-C.
+    # Listen for VOEvents until killed with Control-C.
     gcn.listen(handler=handler)
 
 
