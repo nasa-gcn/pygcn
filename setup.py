@@ -15,15 +15,21 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+import ast
 from setuptools import setup
 import sys
-import gcn
 
 setup_requires = ['setuptools >= 30.3.0']
 if {'pytest', 'test', 'ptr'}.intersection(sys.argv):
     setup_requires.append('pytest-runner')
 
-setup(description=gcn.__doc__.splitlines()[1],
-      long_description=gcn.__doc__,
-      version=gcn.__version__,
+# Get docstring and version without importing module
+with open('gcn/__init__.py') as f:
+    mod = ast.parse(f.read())
+__doc__ = ast.get_docstring(mod)
+__version__ = mod.body[-1].value.s
+
+setup(description=__doc__.splitlines()[1],
+      long_description=__doc__,
+      version=__version__,
       setup_requires=setup_requires)
