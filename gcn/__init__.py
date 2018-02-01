@@ -35,4 +35,4 @@ TCP/IP VOEvent Transport Protocol
 from .voeventclient import listen, serve
 
 __all__ = ('listen', 'serve')
-__version__ = '0.1.13'
+__version__ = '0.1.14'

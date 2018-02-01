@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.1.14 (2018-02-01)
+-------------------
+
+- Depend unconditionally on lxml. Some of the examples depend on it because
+  of differences in how xml.etree and lxml.etree handle XML namespaces.
+  [Leo Singer]
+
 0.1.13 (2018-01-24)
 -------------------
 
