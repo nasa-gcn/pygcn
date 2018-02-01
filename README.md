@@ -55,11 +55,10 @@ def handler(payload, root):
         name = param.attrib['name']
         value = param.attrib['value']
         print('{} = {}'.format(name, value))
-```
 
 # Listen for VOEvents until killed with Control-C.
 gcn.listen(handler=handler)
-
+```
 ## Filtering
 
 You can also filter events by notice type using
