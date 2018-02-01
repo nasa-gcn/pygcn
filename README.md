@@ -41,22 +41,24 @@ content of the GCN, and `root`, the root element of the XML document as parsed
 by the Python standard library module [`xml.etree`][4] or if available the
 faster third-party package ['lxml.etree``][5]. Here is a basic example:
 
-    #!/usr/bin/env python
-    import gcn
+```python
+#!/usr/bin/env python
+import gcn
 
-    # Define your custom handler here.
-    def handler(payload, root):
-        # Get the IVORN, or unique VOEvent ID, and print it.
-        print(root.attrib['ivorn'])
+# Define your custom handler here.
+def handler(payload, root):
+    # Get the IVORN, or unique VOEvent ID, and print it.
+    print(root.attrib['ivorn'])
 
-        # Print all of the event attributes.
-        for param in root.findall('./What/Param'):
-            name = param.attrib['name']
-            value = param.attrib['value']
-            print('{} = {}'.format(name, value))
+    # Print all of the event attributes.
+    for param in root.findall('./What/Param'):
+        name = param.attrib['name']
+        value = param.attrib['value']
+        print('{} = {}'.format(name, value))
+```
 
-    # Listen for VOEvents until killed with Control-C.
-    gcn.listen(handler=handler)
+# Listen for VOEvents until killed with Control-C.
+gcn.listen(handler=handler)
 
 ## Filtering
 
@@ -64,28 +66,30 @@ You can also filter events by notice type using
 `gcn.handlers.include_notice_types` or `gcn.handlers.exclude_notice_types`.
 Here is an example:
 
-    #!/usr/bin/env python
-    import gcn
-    import gcn.handlers
-    import gcn.notice_types
+```python
+#!/usr/bin/env python
+import gcn
+import gcn.handlers
+import gcn.notice_types
 
-    # Define your custom handler here.
-    @gcn.handlers.include_notice_types(
-        gcn.notice_types.FERMI_GBM_FLT_POS,  # Fermi GBM localization (flight)
-        gcn.notice_types.FERMI_GBM_GND_POS,  # Fermi GBM localization (ground)
-        gcn.notice_types.FERMI_GBM_FIN_POS)  # Fermi GBM localization (final)
-    def handler(payload, root):
-        # Look up right ascension, declination, and error radius fields.
-        pos2d = root.find('.//{*}Position2D')
-        ra = float(pos2d.find('.//{*}C1').text)
-        dec = float(pos2d.find('.//{*}C2').text)
-        radius = float(pos2d.find('.//{*}Error2Radius').text)
+# Define your custom handler here.
+@gcn.handlers.include_notice_types(
+    gcn.notice_types.FERMI_GBM_FLT_POS,  # Fermi GBM localization (flight)
+    gcn.notice_types.FERMI_GBM_GND_POS,  # Fermi GBM localization (ground)
+    gcn.notice_types.FERMI_GBM_FIN_POS)  # Fermi GBM localization (final)
+def handler(payload, root):
+    # Look up right ascension, declination, and error radius fields.
+    pos2d = root.find('.//{*}Position2D')
+    ra = float(pos2d.find('.//{*}C1').text)
+    dec = float(pos2d.find('.//{*}C2').text)
+    radius = float(pos2d.find('.//{*}Error2Radius').text)
 
-        # Print.
-        print('ra = {:g}, dec={:g}, radius={:g}'.format(ra, dec, radius))
+    # Print.
+    print('ra = {:g}, dec={:g}, radius={:g}'.format(ra, dec, radius))
 
-    # Listen for VOEvents until killed with Control-C.
-    gcn.listen(handler=handler)
+# Listen for VOEvents until killed with Control-C.
+gcn.listen(handler=handler)
+```
 
 
 [1]: http://gcn.gsfc.nasa.gov
