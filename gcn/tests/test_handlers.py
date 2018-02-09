@@ -2,7 +2,8 @@ import os
 import pkg_resources
 from six.moves.urllib.parse import quote_plus
 
-from ..voeventclient import parse_from_string
+from lxml.etree import fromstring
+
 from .. import handlers
 from .. import notice_types
 
@@ -19,7 +20,7 @@ def test_include_notice_types():
         t.append(handlers.get_notice_type(root))
 
     for payload in payloads:
-        handler(payload, parse_from_string(payload))
+        handler(payload, fromstring(payload))
 
     assert t == [notice_types.FERMI_GBM_FLT_POS]
 
@@ -32,7 +33,7 @@ def test_exclude_notice_types():
         t.append(handlers.get_notice_type(root))
 
     for payload in payloads:
-        handler(payload, parse_from_string(payload))
+        handler(payload, fromstring(payload))
 
     assert t == [notice_types.KILL_SOCKET]
 
@@ -43,10 +44,10 @@ def test_archive(tmpdir):
         os.chdir(str(tmpdir))
 
         for payload in payloads:
-            handlers.archive(payload, parse_from_string(payload))
+            handlers.archive(payload, fromstring(payload))
 
         for payload in payloads:
-            root = parse_from_string(payload)
+            root = fromstring(payload)
             filename = quote_plus(root.attrib['ivorn'])
             assert (tmpdir / filename).exists()
     finally:

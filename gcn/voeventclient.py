@@ -27,16 +27,11 @@ import socket
 import struct
 import time
 
-import lxml.etree
-from lxml.etree import XMLSyntaxError
+from lxml.etree import fromstring, XMLSyntaxError
 
 # Buffer for storing message size
 _size_struct = struct.Struct("!I")
 _size_len = _size_struct.size
-
-
-def parse_from_string(text):
-    return lxml.etree.parse(io.BytesIO(text)).getroot()
 
 
 def _get_now_iso8601():
@@ -151,7 +146,7 @@ def _ingest_packet(sock, ivorn, handler, log):
 
     # Parse payload and act on it
     try:
-        root = parse_from_string(payload)
+        root = fromstring(payload)
     except XMLSyntaxError:
         log.exception("failed to parse XML, base64-encoded payload is:\n%s",
                       base64.b64encode(payload))
