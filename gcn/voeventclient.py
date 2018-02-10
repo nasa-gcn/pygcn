@@ -29,6 +29,8 @@ import time
 
 from lxml.etree import fromstring, XMLSyntaxError
 
+__all__ = ('listen', 'serve')
+
 # Buffer for storing message size
 _size_struct = struct.Struct("!I")
 _size_len = _size_struct.size

@@ -32,7 +32,12 @@ TCP/IP VOEvent Transport Protocol
 (http://www.ivoa.net/documents/Notes/VOEventTransport).
 """
 
-from .voeventclient import listen, serve
+from . import handlers
+from . import notice_types
+from . import voeventclient
+from .handlers import *
+from .notice_types import *
+from .voeventclient import *
 
-__all__ = ('listen', 'serve')
+__all__ = handlers.__all__ + notice_types.__all__ + voeventclient.__all__
 __version__ = '0.1.14'
