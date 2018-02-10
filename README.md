@@ -61,17 +61,15 @@ gcn.listen(handler=handler)
 ## Filtering
 
 You can also filter events by notice type using
-`gcn.handlers.include_notice_types` or `gcn.handlers.exclude_notice_types`.
+`gcn.include_notice_types` or `gcn.exclude_notice_types`.
 Here is an example:
 
 ```python
 #!/usr/bin/env python
 import gcn
-import gcn.handlers
-import gcn.notice_types
 
 # Define your custom handler here.
-@gcn.handlers.include_notice_types(
+@gcn.include_notice_types(
     gcn.notice_types.FERMI_GBM_FLT_POS,  # Fermi GBM localization (flight)
     gcn.notice_types.FERMI_GBM_GND_POS,  # Fermi GBM localization (ground)
     gcn.notice_types.FERMI_GBM_FIN_POS)  # Fermi GBM localization (final)
