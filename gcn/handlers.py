@@ -18,6 +18,7 @@
 Payload handlers.
 """
 
+import functools
 import logging
 from six.moves.urllib.parse import quote_plus
 
@@ -44,6 +45,7 @@ def include_notice_types(*notice_types):
     notice_types = frozenset(notice_types)
 
     def decorate(handler):
+        @functools.wraps(handler)
         def handle(payload, root):
             if get_notice_type(root) in notice_types:
                 handler(payload, root)
@@ -67,6 +69,7 @@ def exclude_notice_types(*notice_types):
     notice_types = frozenset(notice_types)
 
     def decorate(handler):
+        @functools.wraps(handler)
         def handle(payload, root):
             if get_notice_type(root) not in notice_types:
                 handler(payload, root)
