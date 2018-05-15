@@ -21,7 +21,6 @@ VOEvent Transport Protocol <http://www.ivoa.net/documents/VOEventTransport>.
 
 import base64
 import datetime
-import io
 import logging
 import socket
 import struct
