@@ -21,7 +21,7 @@ import argparse
 import collections
 import logging
 
-from . import handlers, listen, __version__
+from . import handlers, listen, serve, __version__
 
 
 class HostPort(collections.namedtuple('HostPort', 'host port')):
