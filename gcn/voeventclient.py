@@ -113,11 +113,7 @@ def _recv_packet(sock):
 def _send_packet(sock, payload):
     """Send an array of bytes as a length-prefixed VOEvent Transport Protocol
     packet."""
-    # Send size of payload to follow
-    sock.sendall(_size_struct.pack(len(payload)))
-
-    # Send payload
-    sock.sendall(payload)
+    sock.sendall(_size_struct.pack(len(payload)) + payload)
 
 
 def _form_response(role, origin, response, timestamp):
