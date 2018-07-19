@@ -104,7 +104,7 @@ def _recv_packet(sock):
     """Read a length-prefixed VOEvent Transport Protocol packet and return the
     payload."""
     # Receive and unpack size of payload to follow
-    payload_len, = _size_struct.unpack_from(_recvall(sock, 4))
+    payload_len, = _size_struct.unpack_from(_recvall(sock, _size_len))
 
     # Receive payload
     return _recvall(sock, payload_len)
