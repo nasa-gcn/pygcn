@@ -26,6 +26,11 @@ import socket
 import struct
 import time
 
+try:
+    from time import monotonic
+except ImportError:  # FIXME: workaround for Python < 3.5
+    from time import clock as monotonic
+
 from lxml.etree import fromstring, XMLSyntaxError
 
 __all__ = ('listen', 'serve')
@@ -80,10 +85,10 @@ def _recvall(sock, n):
     ba = bytearray(n)
     mv = memoryview(ba)
     timeout = sock.gettimeout()
-    start = time.clock()
+    start = monotonic()
 
     while n > 0:
-        if time.clock() - start > timeout:
+        if monotonic() - start > timeout:
             raise socket.timeout(
                 'timed out while trying to read {0} bytes'.format(n))
         nreceived = sock.recv_into(mv, n)
