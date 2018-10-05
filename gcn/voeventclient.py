@@ -246,6 +246,8 @@ def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
     """Rudimentary GCN server, for testing purposes. Serves just one connection
     at a time, and repeats the same payloads in order, repeating, for each
     connection."""
+    payloads = [open(payload, 'rb').read() for payload in payloads]
+
     if log is None:
         log = logging.getLogger('gcn.serve')
 
