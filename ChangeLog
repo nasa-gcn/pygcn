@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.1.17 (2018-10-04)
+-------------------
+
+- Add missing dependency on six. [Leo Singer]
+
+- Fix handling of payload command line arguments for pygcn-server.
+  Thanks go out to WeiKang Zheng of UC Berkeley for reporting this.
+  [Leo Singer]
+
 0.1.16 (2018-03-03)
 -------------------
 
