@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.1.18 (unreleased)
+-------------------
+
+- Add `{http://telescope-networks.org/xml/Transport/v1.1}Transport` and
+  `{http://telescope-networks.org/schema/Transport/v1.1}Transport` as
+  recognized VOEvent Transport Protocol namespaces to support the 4pisky and
+  comet brokers. [reported by Martin Dyer]
+
 0.1.17 (2018-10-04)
 -------------------
 

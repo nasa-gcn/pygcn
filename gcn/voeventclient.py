@@ -39,6 +39,11 @@ __all__ = ('listen', 'serve')
 _size_struct = struct.Struct("!I")
 _size_len = _size_struct.size
 
+_valid_vtp_root_tags = {
+    '{http://telescope-networks.org/xml/Transport/v1.1}Transport',
+    '{http://telescope-networks.org/schema/Transport/v1.1}Transport',
+    '{http://www.telescope-networks.org/xml/Transport/v1.1}Transport'}
+
 
 def _get_now_iso8601():
     """Get current date-time in ISO 8601 format."""
@@ -154,8 +159,7 @@ def _ingest_packet(sock, ivorn, handler, log):
                       base64.b64encode(payload))
         raise
     else:
-        if root.tag == ('{http://telescope-networks.org/schema/Transport/v1.1}'
-                        'Transport'):
+        if root.tag in _valid_vtp_root_tags:
             if "role" not in root.attrib:
                 log.error("receieved transport message without a role")
             elif root.attrib["role"] == "iamalive":
