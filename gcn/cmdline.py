@@ -91,6 +91,7 @@ def listen_main(args=None):
     listen(host=args.addr.host, port=args.addr.port,
            handler=handlers.archive)
 
+
 def threaded_listen_main(args=None):
     """Example VOEvent listener that demonstrates threaded operation"""
 
@@ -101,11 +102,12 @@ def threaded_listen_main(args=None):
                         help='Server host and port (default: %(default)s)')
     parser.add_argument('--version', action='version',
                         version='pygcn ' + __version__)
-    parser.add_argument('--maxtime', default=None, help='Time to process until returning (s)')
+    parser.add_argument('--maxtime', default=None,
+                        help='Time to process until returning (s)')
     args = parser.parse_args(args)
 
     if args.maxtime is not None:
-        args.maxtime = datetime.timedelta(seconds = float(args.maxtime))
+        args.maxtime = datetime.timedelta(seconds=float(args.maxtime))
 
     # Set up logger
     logging.basicConfig(level=logging.INFO)
@@ -114,13 +116,15 @@ def threaded_listen_main(args=None):
     # in a second thread, while counting up seconds in the main thread.
     messagequeue = queue.Queue()
     stopevent = threading.Event()
+
     def inthandler(signum, frame):
         stopevent.set()
-    signal.signal(signal.SIGINT, handler=inthandler) # Keyboard etc interrupt
+
+    signal.signal(signal.SIGINT, handler=inthandler)  # Keyboard etc interrupt
     try:
         listenargs = dict(host=args.addr.host, port=args.addr.port,
-                      handler=handlers.queuehandlerfor(messagequeue),
-                      stopevent=stopevent)
+                          handler=handlers.queuehandlerfor(messagequeue),
+                          stopevent=stopevent)
         thread = threading.Thread(target=listen, kwargs=listenargs)
         starttime = datetime.datetime.utcnow()
         lasttime = starttime
@@ -128,14 +132,14 @@ def threaded_listen_main(args=None):
 
         while thread.is_alive():
             try:
-                payload,root = messagequeue.get(timeout=1)
+                payload, root = messagequeue.get(timeout=1)
                 print('\r{} {}'
-                      .format(datetime.datetime.utcnow().strftime("%H:%M:%S"), root.attrib['ivorn']))
+                      .format(datetime.datetime.utcnow().strftime("%H:%M:%S"),
+                              root.attrib['ivorn']))
                 lasttime = datetime.datetime.utcnow()
             except queue.Empty:
-                print('\r{:.0f}'
-                    .format((datetime.datetime.utcnow() - lasttime).total_seconds()),
-                      end='\r')
+                dt = (datetime.datetime.utcnow() - lasttime).total_seconds()
+                print('\r{:.0f}'.format(dt), end='\r')
             if args.maxtime is not None:
                 if (datetime.datetime.utcnow() - starttime) > args.maxtime:
                     stopevent.set()
@@ -147,6 +151,7 @@ def threaded_listen_main(args=None):
         raise
     print('\nFinishing')
     thread.join()
+
 
 def threaded_listen_main(args=None):
     """Example VOEvent listener that demonstrates threaded operation"""
