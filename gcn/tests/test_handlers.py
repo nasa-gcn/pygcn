@@ -7,6 +7,10 @@ from lxml.etree import fromstring
 from .. import handlers
 from .. import notice_types
 
+try:
+    import queue
+except:
+    import Queue as queue
 
 payloads = [pkg_resources.resource_string(__name__, 'data/gbm_flt_pos.xml'),
             pkg_resources.resource_string(__name__, 'data/kill_socket.xml')]
@@ -52,3 +56,24 @@ def test_archive(tmpdir):
             assert (tmpdir / filename).exists()
     finally:
         os.chdir(old_dir)
+
+
+def test_queuehandler():
+    queue_ = queue.Queue()
+    queuehandler = handlers.queuehandlerfor(queue_)
+    assert queue_.empty()
+
+    for payload in payloads:
+        queuehandler(payload, fromstring(payload))
+        qpayload, qtree = queue_.get()
+        assert qpayload == payload
+
+    assert queue_.empty()
+
+    for payload in payloads:
+        queuehandler(payload, fromstring(payload))
+    for payload in payloads:
+        qpayload, qtree = queue_.get()
+        assert qpayload == payload
+
+    assert queue_.empty()

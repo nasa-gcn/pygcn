@@ -193,7 +193,8 @@ def _ingest_packet(sock, ivorn, handler, log):
 
 def listen(host="68.169.57.253", port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
-           max_reconnect_timeout=1024, handler=None, log=None):
+           max_reconnect_timeout=1024, handler=None, log=None,
+           stopevent=None, stopinterval=1):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
     `port`, then listen for VOEvents until interrupted (i.e., by a keyboard
     interrupt, `SIGINTR`, or `SIGTERM`).
@@ -214,17 +215,28 @@ def listen(host="68.169.57.253", port=8099,
     used for reporting the client's status. If `log` is not provided, a default
     logger will be used.
 
-    Note that this function does not return."""
+    If stopevent is used, then the function returns when the event is set()
+    (with a delay of up to stopinterval seconds).
+
+    Note that this function does not return unless the stopevent is used."""
     if log is None:
         log = logging.getLogger('gcn.listen')
 
     while True:
         sock = _open_socket(host, port, iamalive_timeout,
                             max_reconnect_timeout, log)
-
+        if stopevent is not None:
+            sock.settimeout(stopinterval)
         try:
             while True:
-                _ingest_packet(sock, ivorn, handler, log)
+                try:
+                    _ingest_packet(sock, ivorn, handler, log)
+                except socket.timeout:
+                    if stopevent is None:
+                        raise
+                    else:
+                        if stopevent.is_set():
+                            return  # Stop listening.
         except socket.timeout:
             log.warn("timed out")
         except socket.error:
