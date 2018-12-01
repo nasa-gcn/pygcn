@@ -23,7 +23,7 @@ import logging
 from six.moves.urllib.parse import quote_plus
 
 __all__ = ('get_notice_type', 'include_notice_types', 'exclude_notice_types',
-           'archive')
+           'archive', 'queuehandlerfor')
 
 
 def get_notice_type(root):
@@ -86,3 +86,19 @@ def archive(payload, root):
     with open(filename, 'wb') as f:
         f.write(payload)
     logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
+
+def _queuehandler(payload, root, queue=None):
+    """ Place (payload, root) on queue for threaded operation.
+    This can be used in the following manner:
+        gcn.listen(handler = functools.partial(partialize_queue, queue=a_queue))
+    """
+    if queue is None:
+        raise TypeError("The queue must be set (use queuehandlerfor())")
+    queue.put( (payload,root) )
+
+def queuehandlerfor(queue):
+    """Create a handler that places (payload, root) on the given queue
+    This can be used in the following manner:
+        gcn.listen(handler = queuehandlerfor(queue))
+    """
+    return functools.partial(_queuehandler, queue=queue)
