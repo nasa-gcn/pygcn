@@ -87,6 +87,7 @@ def archive(payload, root):
         f.write(payload)
     logging.getLogger('gcn.handlers.archive').info("archived %s", ivorn)
 
+
 def _queuehandler(payload, root, queue=None):
     """ Place (payload, root) on queue for threaded operation.
     This can be used in the following manner:
@@ -94,7 +95,8 @@ def _queuehandler(payload, root, queue=None):
     """
     if queue is None:
         raise TypeError("The queue must be set (use queuehandlerfor())")
-    queue.put( (payload,root) )
+    queue.put((payload, root))
+
 
 def queuehandlerfor(queue):
     """Create a handler that places (payload, root) on the given queue
