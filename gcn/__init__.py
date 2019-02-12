@@ -40,4 +40,4 @@ from .notice_types import *
 from .voeventclient import *
 
 __all__ = handlers.__all__ + notice_types.__all__ + voeventclient.__all__
-__version__ = '0.1.18'
+__version__ = '0.1.19'
