@@ -75,8 +75,10 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
                     log.info("closed socket")
                 raise
         except socket.error:
-            if reconnect_timeout < max_reconnect_timeout:
-                reconnect_timeout <<= 1
+            reconnect_timeout <<= 1
+            if reconnect_timeout > max_reconnect_timeout:
+                log.exception("reconnect_timeout reached at max_reconnect_timeout")
+                raise
             log.exception(
                 'could not connect to %s:%d, will retry in %d seconds',
                 host, port, reconnect_timeout)
@@ -243,6 +245,7 @@ def listen(host="68.169.57.253", port=8099,
                 log.exception("could not close socket")
             else:
                 log.info("closed socket")
+            raise
 
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
