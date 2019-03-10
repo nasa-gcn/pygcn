@@ -191,7 +191,7 @@ def _ingest_packet(sock, ivorn, handler, log):
                       root.tag)
 
 
-def listen(host="68.169.57.253", port=8099,
+def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68", "68.169.57.253"], port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
            max_reconnect_timeout=1024, handler=None, log=None):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
@@ -215,11 +215,27 @@ def listen(host="68.169.57.253", port=8099,
     logger will be used.
 
     Note that this function does not return."""
+
     if log is None:
         log = logging.getLogger('gcn.listen')
 
+    if isinstance(host, str):
+        host = [host]
+
+    if not isinstance(port, list):
+        port = [port for thishost in host]
+
+    assert len(host) == len(port), "'port' should be an integer or a list of the same"\
+        "length as 'host'. You specified {} hosts and {} ports".format(len(host), len(port))
+    #    log.exception("Host list and port list are of unequal lengths")
+
+    hostcount = 0
+    num_hosts = len(host)
+
     while True:
-        sock = _open_socket(host, port, iamalive_timeout,
+        this_port = port[hostcount]
+        this_host = host[hostcount]
+        sock = _open_socket(this_host, this_port, iamalive_timeout,
                             max_reconnect_timeout, log)
 
         try:
@@ -227,23 +243,37 @@ def listen(host="68.169.57.253", port=8099,
                 _ingest_packet(sock, ivorn, handler, log)
         except socket.timeout:
             log.warn("timed out")
+            hostcount = _next_socket(sock, log, hostcount, num_hosts, host, port, iamalive_timeout, max_reconnect_timeout)
         except socket.error:
             log.exception("socket error")
+            # hostcount = _next_socket(sock, log, hostcount, num_hosts, host, port, iamalive_timeout, max_reconnect_timeout)
         except XMLSyntaxError:
             log.warn("XML syntax error")
         finally:
-            try:
-                sock.shutdown(socket.SHUT_RDWR)
-            except socket.error:
-                log.exception("could not shut down socket")
+            _close_socket(sock, log)
 
-            try:
-                sock.close()
-            except socket.error:
-                log.exception("could not close socket")
-            else:
-                log.info("closed socket")
+def _next_socket(sock, log, hostcount, num_hosts, host, port, iamalive_timeout, max_reconnect_timeout):
+        _close_socket(sock, log)
+        hostcount = (hostcount + 1) % num_hosts
+        this_port = port[hostcount]
+        this_host = host[hostcount]
+        sock = _open_socket(this_host, this_port, iamalive_timeout,
+                        max_reconnect_timeout, log)
+        return hostcount
 
+
+def _close_socket(sock, log):
+    try:
+        sock.shutdown(socket.SHUT_RDWR)
+    except socket.error:
+        log.exception("could not shut down socket")
+
+    try:
+        sock.close()
+    except socket.error:
+        log.exception("could not close socket")
+    else:
+        log.info("closed socket")
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
           log=None):
