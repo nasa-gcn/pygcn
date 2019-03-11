@@ -195,7 +195,7 @@ def _ingest_packet(sock, ivorn, handler, log):
 
 def _validate_host_port(host, port):
     """
-    Check if the host and port values are consistent with each other, 
+    Check if the host and port values are consistent with each other,
     to be used as pairs.
     `host` can be a string or a list of strings
     `port` can be an integer or a list of the same length as host
@@ -214,7 +214,7 @@ def _validate_host_port(host, port):
     return host, port
 
 
-def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68", 
+def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68",
            "68.169.57.253"], port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
            max_reconnect_timeout=1024, handler=None, log=None):
@@ -283,7 +283,7 @@ def _close_socket(sock, log):
     else:
         log.info("closed socket")
 
-        
+
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
           log=None):
     """Rudimentary GCN server, for testing purposes. Serves just one connection
