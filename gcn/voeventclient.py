@@ -25,6 +25,7 @@ import logging
 import socket
 import struct
 import time
+import itertools
 
 try:
     from time import monotonic
@@ -55,6 +56,7 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
     Double the timeout after each failed attempt thereafter, until the
     timeout reaches MAX_RECONNECT_TIMEOUT. Return the new, connected socket."""
     reconnect_timeout = 1
+
     while True:
         try:
             # Open socket
@@ -191,6 +193,26 @@ def _ingest_packet(sock, ivorn, handler, log):
                       root.tag)
 
 
+def _validate_host_port(host, port):
+    """
+    Check if the host and port values are consistent with each other to be used as pairs.
+    `host` can be a string or a list of strings
+    `port` can be an integer or a list of the same length as host
+    """
+
+    if isinstance(host, str):
+        host = [host]
+
+    if not isinstance(port, list):
+        port = [port for thishost in host]
+
+    if not len(host) == len(port):
+        log.exception("Host list and port list are of unequal lengths")
+        raise ValueError
+
+    return host, port
+
+
 def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68", "68.169.57.253"], port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
            max_reconnect_timeout=1024, handler=None, log=None):
@@ -219,22 +241,17 @@ def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68", "68.169.57.25
     if log is None:
         log = logging.getLogger('gcn.listen')
 
-    if isinstance(host, str):
-        host = [host]
-
-    if not isinstance(port, list):
-        port = [port for thishost in host]
-
-    assert len(host) == len(port), "'port' should be an integer or a list of the same"\
-        "length as 'host'. You specified {} hosts and {} ports".format(len(host), len(port))
-    #    log.exception("Host list and port list are of unequal lengths")
-
+    host, port = _validate_host_port(host, port)
     hostcount = 0
     num_hosts = len(host)
 
-    while True:
-        this_port = port[hostcount]
-        this_host = host[hostcount]
+    # while True:
+    #     this_port = port[hostcount]
+    #     this_host = host[hostcount]
+    # Use `for this_host, this_port in itertools.cycle(zip(host, port)):`
+
+    for this_host, this_port in itertools.cycle(zip(host, port)):
+        print this_host, this_port
         sock = _open_socket(this_host, this_port, iamalive_timeout,
                             max_reconnect_timeout, log)
 
@@ -243,23 +260,12 @@ def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68", "68.169.57.25
                 _ingest_packet(sock, ivorn, handler, log)
         except socket.timeout:
             log.warn("timed out")
-            hostcount = _next_socket(sock, log, hostcount, num_hosts, host, port, iamalive_timeout, max_reconnect_timeout)
         except socket.error:
             log.exception("socket error")
-            # hostcount = _next_socket(sock, log, hostcount, num_hosts, host, port, iamalive_timeout, max_reconnect_timeout)
         except XMLSyntaxError:
             log.warn("XML syntax error")
         finally:
             _close_socket(sock, log)
-
-def _next_socket(sock, log, hostcount, num_hosts, host, port, iamalive_timeout, max_reconnect_timeout):
-        _close_socket(sock, log)
-        hostcount = (hostcount + 1) % num_hosts
-        this_port = port[hostcount]
-        this_host = host[hostcount]
-        sock = _open_socket(this_host, this_port, iamalive_timeout,
-                        max_reconnect_timeout, log)
-        return hostcount
 
 
 def _close_socket(sock, log):
