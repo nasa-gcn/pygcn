@@ -18,6 +18,9 @@
 GCN Notice types, from <http://gcn.gsfc.nasa.gov/filtering.html>.
 """
 
+from enum import IntEnum
+
+
 _notice_types = dict(
     GRB_COORDS=1,
     TEST_COORDS=2,
@@ -160,8 +163,6 @@ _notice_types = dict(
     ICECUBE_ASTROTRACK_BRONZE=174)
 
 vars().update(**_notice_types)
-
-from enum import IntEnum
 NoticeType = IntEnum('NoticeType', _notice_types)
-del IntEnum, _notice_types
 __all__ = ('NoticeType',)
+del IntEnum, _notice_types
