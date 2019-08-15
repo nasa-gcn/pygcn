@@ -16,8 +16,10 @@
 #
 
 import ast
-from setuptools import setup
 import sys
+
+from setuptools import setup
+import versioneer
 
 setup_requires = ['setuptools >= 30.3.0']
 if {'pytest', 'test', 'ptr'}.intersection(sys.argv):
@@ -27,9 +29,9 @@ if {'pytest', 'test', 'ptr'}.intersection(sys.argv):
 with open('gcn/__init__.py') as f:
     mod = ast.parse(f.read())
 __doc__ = ast.get_docstring(mod)
-__version__ = mod.body[-1].value.s
 
 setup(description=__doc__.splitlines()[1],
       long_description=__doc__,
-      version=__version__,
-      setup_requires=setup_requires)
+      setup_requires=setup_requires,
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass())
