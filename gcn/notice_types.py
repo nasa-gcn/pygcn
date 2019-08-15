@@ -161,15 +161,7 @@ _notice_types = dict(
 
 vars().update(**_notice_types)
 
-try:
-    # FIXME:
-    # This module was added to the Python standard library in Python 3.4.
-    from enum import IntEnum
-except ImportError:
-    __all__ = ()
-else:
-    NoticeType = IntEnum('NoticeType', _notice_types)
-    del IntEnum
-    __all__ = ('NoticeType',)
-
-del _notice_types
+from enum import IntEnum
+NoticeType = IntEnum('NoticeType', _notice_types)
+del IntEnum, _notice_types
+__all__ = ('NoticeType',)
