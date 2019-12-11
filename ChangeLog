@@ -1,16 +1,22 @@
 Changelog
 =========
 
+0.1.20 (2019-02-12)
+-------------------
+
+- Add new notice types: ``HAWC_BURST_MONITOR``, ``ICECUBE_ASTROTRACK_GOLD``,
+  and ``ICECUBE_ASTROTRACK_BRONZE``. [Vladimir Savchenko]
+
 0.1.19 (2019-02-12)
 -------------------
 
-- Add the `LVC_RETRACTION` notice type. [Leo Singer]
+- Add the ``LVC_RETRACTION`` notice type. [Leo Singer]
 
 0.1.18 (2018-12-11)
 -------------------
 
-- Add `{http://telescope-networks.org/xml/Transport/v1.1}Transport` and
-  `{http://telescope-networks.org/schema/Transport/v1.1}Transport` as
+- Add ``{http://telescope-networks.org/xml/Transport/v1.1}Transport`` and
+  ``{http://telescope-networks.org/schema/Transport/v1.1}Transport`` as
   recognized VOEvent Transport Protocol namespaces to support the 4pisky and
   comet brokers. [reported by Martin Dyer]
 
@@ -91,8 +97,8 @@ Changelog
 
 - Cleanly shut down server socket. [Leo Singer]
 
-  This decreases or eliminates the prevalence of `Address already in use`
-  errors when the server is killed (e.g. via a `KeyboardInterrupt`) and
+  This decreases or eliminates the prevalence of ``Address already in use``
+  errors when the server is killed (e.g. via a ``KeyboardInterrupt``) and
   immediately restarted.
 
 - Add some log messages. [Leo Singer]
