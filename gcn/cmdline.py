@@ -31,7 +31,6 @@ try:
 except ImportError:
     import Queue as queue  # Python 2.7
 
-
 from . import handlers, listen, serve, __version__
 
 
@@ -90,67 +89,6 @@ def listen_main(args=None):
     # Listen for GCN notices (until interrupted or killed)
     listen(host=args.addr.host, port=args.addr.port,
            handler=handlers.archive)
-
-
-def threaded_listen_main(args=None):
-    """Example VOEvent listener that demonstrates threaded operation"""
-
-    # Command line interface
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('addr', default='68.169.57.253:8099',
-                        action=HostPortAction,
-                        help='Server host and port (default: %(default)s)')
-    parser.add_argument('--version', action='version',
-                        version='pygcn ' + __version__)
-    parser.add_argument('--maxtime', default=None,
-                        help='Time to process until returning (s)')
-    args = parser.parse_args(args)
-
-    if args.maxtime is not None:
-        args.maxtime = datetime.timedelta(seconds=float(args.maxtime))
-
-    # Set up logger
-    logging.basicConfig(level=logging.INFO)
-
-    # Listen for GCN notices (until interrupted, killed, or maxtime reached)
-    # in a second thread, while counting up seconds in the main thread.
-    messagequeue = queue.Queue()
-    stopevent = threading.Event()
-
-    def inthandler(signum, frame):
-        stopevent.set()
-
-    signal.signal(signal.SIGINT, handler=inthandler)  # Keyboard etc interrupt
-    try:
-        listenargs = dict(host=args.addr.host, port=args.addr.port,
-                          handler=handlers.queuehandlerfor(messagequeue),
-                          stopevent=stopevent)
-        thread = threading.Thread(target=listen, kwargs=listenargs)
-        starttime = datetime.datetime.utcnow()
-        lasttime = starttime
-        thread.start()
-
-        while thread.is_alive():
-            try:
-                payload, root = messagequeue.get(timeout=1)
-                print('\r{} {}'
-                      .format(datetime.datetime.utcnow().strftime("%H:%M:%S"),
-                              root.attrib['ivorn']))
-                lasttime = datetime.datetime.utcnow()
-            except queue.Empty:
-                dt = (datetime.datetime.utcnow() - lasttime).total_seconds()
-                print('\r{:.0f}'.format(dt), end='\r')
-            if args.maxtime is not None:
-                if (datetime.datetime.utcnow() - starttime) > args.maxtime:
-                    stopevent.set()
-                    break
-    except Exception as e:
-        stopevent.set()
-        print(e, file=sys.stderr)
-        thread.join()
-        raise
-    print('\nFinishing')
-    thread.join()
 
 
 def threaded_listen_main(args=None):

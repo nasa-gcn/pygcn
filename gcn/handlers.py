@@ -91,7 +91,7 @@ def archive(payload, root):
 def _queuehandler(payload, root, queue=None):
     """ Place (payload, root) on queue for threaded operation.
     This can be used in the following manner:
-        gcn.listen(handler = functools.partial(partialize_queue, queue=a_queue))
+        gcn.listen(handler=functools.partial(partialize_queue, queue=a_queue))
     """
     if queue is None:
         raise TypeError("The queue must be set (use queuehandlerfor())")
