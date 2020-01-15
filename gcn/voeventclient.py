@@ -26,6 +26,7 @@ import socket
 import struct
 import time
 import itertools
+import six
 
 try:
     from time import monotonic
@@ -201,21 +202,21 @@ def _validate_host_port(host, port):
     `port` can be an integer or a list of the same length as host
     """
 
-    if isinstance(host, str):
+    if isinstance(host, six.string_types):
         host = [host]
 
     if not isinstance(port, list):
         port = [port for thishost in host]
 
-    if not len(host) == len(port):
+    if len(host) != len(port):
         log.exception("Host list and port list are of unequal lengths")
         raise ValueError
 
     return host, port
 
 
-def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68",
-           "68.169.57.253"], port=8099,
+def listen(host=("209.208.78.170", "45.58.43.186", "50.116.49.68",
+           "68.169.57.253"), port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
            max_reconnect_timeout=1024, handler=None, log=None):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
@@ -247,13 +248,9 @@ def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68",
     hostcount = 0
     num_hosts = len(host)
 
-    # while True:
-    #     this_port = port[hostcount]
-    #     this_host = host[hostcount]
-    # Use `for this_host, this_port in itertools.cycle(zip(host, port)):`
-
     for this_host, this_port in itertools.cycle(zip(host, port)):
-        print this_host, this_port
+        log.info("Connecting to host: {}, port: {}".format(this_host, this_port))
+        
         sock = _open_socket(this_host, this_port, iamalive_timeout,
                             max_reconnect_timeout, log)
 
@@ -267,22 +264,17 @@ def listen(host=["209.208.78.170", "45.58.43.186", "50.116.49.68",
         except XMLSyntaxError:
             log.warn("XML syntax error")
         finally:
-            _close_socket(sock, log)
+            try:
+                sock.shutdown(socket.SHUT_RDWR)
+            except socket.error:
+                log.exception("could not shut down socket")
 
-
-def _close_socket(sock, log):
-    try:
-        sock.shutdown(socket.SHUT_RDWR)
-    except socket.error:
-        log.exception("could not shut down socket")
-
-    try:
-        sock.close()
-    except socket.error:
-        log.exception("could not close socket")
-    else:
-        log.info("closed socket")
-
+            try:
+                sock.close()
+            except socket.error:
+                log.exception("could not close socket")
+            else:
+                log.info("closed socket")
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
           log=None):
