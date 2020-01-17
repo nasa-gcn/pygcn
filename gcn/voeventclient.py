@@ -251,7 +251,7 @@ def listen(host=("209.208.78.170", "45.58.43.186", "50.116.49.68",
     for this_host, this_port in itertools.cycle(zip(host, port)):
         log.info("Connecting to host: {}, port: {}".format(
                     this_host, this_port))
-        
+
         sock = _open_socket(this_host, this_port, iamalive_timeout,
                             max_reconnect_timeout, log)
 
@@ -276,6 +276,7 @@ def listen(host=("209.208.78.170", "45.58.43.186", "50.116.49.68",
                 log.exception("could not close socket")
             else:
                 log.info("closed socket")
+
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
           log=None):
