@@ -1,6 +1,12 @@
 Changelog
 =========
 
+1.0.0 (unreleased)
+------------------
+
+- The ``gcn.listen`` method can now cycle through a list of remote hosts when
+  re-establishing the connection to GCN. [Varun Bhalerao, Aaron Jones]
+
 0.1.20 (2019-02-12)
 -------------------
 
