@@ -204,12 +204,15 @@ def _validate_host_port(host, port):
     if isinstance(host, six.string_types):
         host = [host]
 
-    if not isinstance(port, list):
-        port = [port for thishost in host]
+    if isinstance(port, int):
+        port = [port]
 
-    if len(host) != len(port):
-        log.exception("Host list and port list are of unequal lengths")
-        raise ValueError
+    if len(host) == 1:
+        host *= len(port)
+    elif len(port) == 1:
+        port *= len(host)
+    elif len(host) != len(port):
+        raise ValueError("Host list and port list are of unequal lengths")
 
     return host, port
 
