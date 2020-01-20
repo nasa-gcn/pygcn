@@ -239,7 +239,6 @@ def listen(host=("209.208.78.170", "45.58.43.186", "50.116.49.68",
     logger will be used.
 
     Note that this function does not return."""
-
     if log is None:
         log = logging.getLogger('gcn.listen')
 
