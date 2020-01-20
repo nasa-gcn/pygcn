@@ -57,7 +57,6 @@ def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
     Double the timeout after each failed attempt thereafter, until the
     timeout reaches MAX_RECONNECT_TIMEOUT. Return the new, connected socket."""
     reconnect_timeout = 1
-
     while True:
         try:
             # Open socket
@@ -245,12 +244,8 @@ def listen(host=("209.208.78.170", "45.58.43.186", "50.116.49.68",
         log = logging.getLogger('gcn.listen')
 
     host, port = _validate_host_port(host, port)
-    hostcount = 0
-    num_hosts = len(host)
 
     for this_host, this_port in itertools.cycle(zip(host, port)):
-        log.info("Connecting to host: {}, port: {}".format(
-                    this_host, this_port))
 
         sock = _open_socket(this_host, this_port, iamalive_timeout,
                             max_reconnect_timeout, log)
