@@ -25,6 +25,8 @@ import logging
 import socket
 import struct
 import time
+import itertools
+import six
 
 try:
     from time import monotonic
@@ -191,7 +193,29 @@ def _ingest_packet(sock, ivorn, handler, log):
                       root.tag)
 
 
-def listen(host="68.169.57.253", port=8099,
+def _validate_host_port(host, port):
+    """
+    Check if the host and port values are consistent with each other,
+    to be used as pairs.
+    `host` can be a string or a list of strings
+    `port` can be an integer or a list of the same length as host
+    """
+
+    if isinstance(host, six.string_types):
+        host = [host]
+
+    if not isinstance(port, list):
+        port = [port for thishost in host]
+
+    if len(host) != len(port):
+        log.exception("Host list and port list are of unequal lengths")
+        raise ValueError
+
+    return host, port
+
+
+def listen(host=("209.208.78.170", "45.58.43.186", "50.116.49.68",
+           "68.169.57.253"), port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
            max_reconnect_timeout=1024, handler=None, log=None):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
@@ -218,8 +242,11 @@ def listen(host="68.169.57.253", port=8099,
     if log is None:
         log = logging.getLogger('gcn.listen')
 
-    while True:
-        sock = _open_socket(host, port, iamalive_timeout,
+    host, port = _validate_host_port(host, port)
+
+    for this_host, this_port in itertools.cycle(zip(host, port)):
+
+        sock = _open_socket(this_host, this_port, iamalive_timeout,
                             max_reconnect_timeout, log)
 
         try:
