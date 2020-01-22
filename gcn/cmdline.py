@@ -52,13 +52,18 @@ class HostPortType(object):
 class HostPortAction(argparse._StoreAction):
 
     def __init__(self, *args, **kwargs):
-        default = kwargs.get('default', '')
+        kwargs = dict(kwargs)
+        default = kwargs.pop('default', '')
         default_host, _, default_port = default.partition(':')
         metavar = 'HOST' + ('[:PORT]' if default_port else ':PORT')
-        nargs = '?' if default_host and default_port else 1
+        nargs = kwargs.pop(
+            'nargs', '?' if default_host and default_port else 1)
         type = HostPortType(default_host, default_port)
+        if nargs in {argparse.ZERO_OR_MORE, argparse.ONE_OR_MORE}:
+            default = [type(default)]
         super(HostPortAction, self).__init__(
-            *args, metavar=metavar, nargs=nargs, type=type, **kwargs)
+            *args, metavar=metavar, nargs=nargs, type=type, default=default,
+            **kwargs)
 
 
 def listen_main(args=None):
@@ -67,8 +72,11 @@ def listen_main(args=None):
     # Command line interface
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('addr', default='68.169.57.253:8099',
-                        action=HostPortAction,
-                        help='Server host and port (default: %(default)s)')
+                        action=HostPortAction, nargs='*',
+                        help='Server host and port; if multiple options are '
+                        'provided, then loop over hosts until a connection '
+                        'with one of them is established. '
+                        '(default: %(default)s)')
     parser.add_argument('--version', action='version',
                         version='pygcn ' + __version__)
     args = parser.parse_args(args)
@@ -77,8 +85,8 @@ def listen_main(args=None):
     logging.basicConfig(level=logging.INFO)
 
     # Listen for GCN notices (until interrupted or killed)
-    listen(host=args.addr.host, port=args.addr.port,
-           handler=handlers.archive)
+    host, port = [list(_) for _ in zip(*args.addr)]
+    listen(host=host, port=port, handler=handlers.archive)
 
 
 def serve_main(args=None):
