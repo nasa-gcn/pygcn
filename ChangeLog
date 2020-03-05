@@ -6,6 +6,8 @@ Changelog
 
 - Add new notice type: ``LVC_EARLY_WARNING``. [Leo Singer]
 
+- Update license to GPL-3+. [Leo Singer]
+
 1.0.0 (2020-01-29)
 ------------------
 
