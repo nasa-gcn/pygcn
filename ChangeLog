@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0.0 (unreleased)
+1.0.0 (2020-01-29)
 ------------------
 
 - The ``gcn.listen`` method can now cycle through a list of remote hosts when
