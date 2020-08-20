@@ -162,7 +162,8 @@ _notice_types = dict(
     AMON_ICECUBE_EHE=169,
     HAWC_BURST_MONITOR=171,
     ICECUBE_ASTROTRACK_GOLD=173,
-    ICECUBE_ASTROTRACK_BRONZE=174)
+    ICECUBE_ASTROTRACK_BRONZE=174,
+    ICECUBE_CASCADE=176)
 
 vars().update(**_notice_types)
 NoticeType = IntEnum('NoticeType', _notice_types)
