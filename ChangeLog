@@ -1,6 +1,26 @@
 Changelog
 =========
 
+1.0.2 (2020-03-05)
+------------------
+
+- Fix incorrect license filename in setup.cfg. [Leo Singer]
+
+1.0.1 (2020-03-05)
+------------------
+
+- Add new notice type: ``LVC_EARLY_WARNING``. [Leo Singer]
+
+- Update license to GPL-3+. [Leo Singer]
+
+1.0.0 (2020-01-29)
+------------------
+
+- The ``gcn.listen`` method can now cycle through a list of remote hosts when
+  re-establishing the connection to GCN. [Varun Bhalerao, Aaron Jones]
+
+- Add new notice types: ``AGILE_MCAL_ALERT``, ``GWHEN_COINC``. [Leo Singer]
+
 0.1.20 (2019-02-12)
 -------------------
 

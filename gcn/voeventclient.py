@@ -1,18 +1,17 @@
 # Copyright (C) 2014-2018  Leo Singer
 #
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 """
 Anonymous VOEvent client for receiving GCNs in XML format, implementing the
@@ -25,6 +24,8 @@ import logging
 import socket
 import struct
 import time
+import itertools
+import six
 
 try:
     from time import monotonic
@@ -50,12 +51,12 @@ def _get_now_iso8601():
     return datetime.datetime.now().isoformat()
 
 
-def _open_socket(host, port, iamalive_timeout, max_reconnect_timeout, log):
+def _open_socket(hosts_ports, iamalive_timeout, max_reconnect_timeout, log):
     """Establish a connection. Wait 1 second after the first failed attempt.
     Double the timeout after each failed attempt thereafter, until the
     timeout reaches MAX_RECONNECT_TIMEOUT. Return the new, connected socket."""
     reconnect_timeout = 1
-    while True:
+    for host, port in hosts_ports:
         try:
             # Open socket
             sock = socket.socket()
@@ -191,7 +192,31 @@ def _ingest_packet(sock, ivorn, handler, log):
                       root.tag)
 
 
-def listen(host="68.169.57.253", port=8099,
+def _validate_host_port(host, port):
+    """
+    Check if the host and port values are consistent with each other,
+    to be used as pairs.
+    `host` can be a string or a list of strings
+    `port` can be an integer or a list of the same length as host
+    """
+
+    if isinstance(host, six.string_types):
+        host = [host]
+
+    if isinstance(port, int):
+        port = [port]
+
+    if len(host) == 1:
+        host *= len(port)
+    elif len(port) == 1:
+        port *= len(host)
+    elif len(host) != len(port):
+        raise ValueError("Host list and port list are of unequal lengths")
+
+    return host, port
+
+
+def listen(host=("45.58.43.186", "68.169.57.253"), port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
            max_reconnect_timeout=1024, handler=None, log=None,
            stopevent=None, stopinterval=1):
@@ -222,8 +247,11 @@ def listen(host="68.169.57.253", port=8099,
     if log is None:
         log = logging.getLogger('gcn.listen')
 
+    hosts_ports = itertools.cycle(zip(*_validate_host_port(host, port)))
+
     while True:
-        sock = _open_socket(host, port, iamalive_timeout,
+
+        sock = _open_socket(hosts_ports, iamalive_timeout,
                             max_reconnect_timeout, log)
         if stopevent is not None:
             sock.settimeout(stopinterval)

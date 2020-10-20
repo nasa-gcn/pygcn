@@ -1,18 +1,17 @@
 # Copyright (C) 2014-2018  Leo Singer
 #
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-# Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 """
 GCN Notice types, from <http://gcn.gsfc.nasa.gov/filtering.html>.
@@ -106,6 +105,7 @@ _notice_types = dict(
     AGILE_GRB_GROUND=101,
     AGILE_GRB_REFINED=102,
     SWIFT_ACTUAL_POINTDIR=103,
+    AGILE_MCAL_ALERT=105,
     AGILE_POINTDIR=107,
     AGILE_TRANS=108,
     AGILE_GRB_POS_TEST=109,
@@ -156,7 +156,9 @@ _notice_types = dict(
     AMON_ICECUBE_HESE=158,
     CALET_GBM_FLT_LC=160,
     CALET_GBM_GND_LC=161,
+    LVC_EARLY_WARNING=163,
     LVC_RETRACTION=164,
+    GWHEN_COINC=168,
     AMON_ICECUBE_EHE=169,
     HAWC_BURST_MONITOR=171,
     ICECUBE_ASTROTRACK_GOLD=173,
