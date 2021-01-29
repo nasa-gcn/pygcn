@@ -179,7 +179,7 @@ def _ingest_packet(sock, ivorn, handler, log):
                 if handler is not None:
                     try:
                         handler(payload, root)
-                    except:
+                    except:  # noqa: E722
                         log.exception("exception in payload handler")
         else:
             log.error('received XML document with unrecognized root tag: %s',
