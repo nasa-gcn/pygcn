@@ -18,7 +18,6 @@ import ast
 import sys
 
 from setuptools import setup
-import versioneer
 
 setup_requires = ['setuptools >= 30.3.0']
 if {'pytest', 'test', 'ptr'}.intersection(sys.argv):
@@ -31,6 +30,4 @@ __doc__ = ast.get_docstring(mod)
 
 setup(description=__doc__.splitlines()[1],
       long_description=__doc__,
-      setup_requires=setup_requires,
-      version=versioneer.get_version(),
-      cmdclass=versioneer.get_cmdclass())
+      setup_requires=setup_requires)
