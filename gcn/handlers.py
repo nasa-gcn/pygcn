@@ -19,7 +19,7 @@ Payload handlers.
 
 import functools
 import logging
-from six.moves.urllib.parse import quote_plus
+from urllib.parse import quote_plus
 
 __all__ = ('get_notice_type', 'include_notice_types', 'exclude_notice_types',
            'archive')

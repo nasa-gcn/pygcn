@@ -1,6 +1,6 @@
 import os
 import pkg_resources
-from six.moves.urllib.parse import quote_plus
+from urllib.parse import quote_plus
 
 from lxml.etree import fromstring
 

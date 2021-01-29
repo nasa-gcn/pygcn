@@ -7,6 +7,9 @@ Changelog
 - Add new notice types: ``AMON_NU_EM_COINC``, ``ICECUBE_CASCADE``.
  [Volodymyr Savchenko]
 
+- Drop support for Python 2.7 and 3.5, which have reached end-of-life.
+  Add support for Python 3.9. [Leo Singer]
+
 1.0.2 (2020-03-05)
 ------------------
 

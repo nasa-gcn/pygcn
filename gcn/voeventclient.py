@@ -25,12 +25,6 @@ import socket
 import struct
 import time
 import itertools
-import six
-
-try:
-    from time import monotonic
-except ImportError:  # FIXME: workaround for Python < 3.5
-    from time import clock as monotonic
 
 from lxml.etree import fromstring, XMLSyntaxError
 
@@ -91,10 +85,10 @@ def _recvall(sock, n):
     ba = bytearray(n)
     mv = memoryview(ba)
     timeout = sock.gettimeout()
-    start = monotonic()
+    start = time.monotonic()
 
     while n > 0:
-        if monotonic() - start > timeout:
+        if time.monotonic() - start > timeout:
             raise socket.timeout(
                 'timed out while trying to read {0} bytes'.format(n))
         nreceived = sock.recv_into(mv, n)
@@ -200,7 +194,7 @@ def _validate_host_port(host, port):
     `port` can be an integer or a list of the same length as host
     """
 
-    if isinstance(host, six.string_types):
+    if isinstance(host, str):
         host = [host]
 
     if isinstance(port, int):

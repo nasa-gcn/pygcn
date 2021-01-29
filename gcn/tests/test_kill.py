@@ -73,10 +73,6 @@ def test_reconnect_after_kill():
 
     handler = MessageCounter()
 
-    # FIXME: workaround for https://bugs.python.org/issue3445,
-    # fixed in Python 3.3
-    handler.__name__ = ''
-
     client_thread = threading.Thread(
         group=None, target=listen,
         kwargs=dict(host='127.0.0.1', max_reconnect_timeout=4,
