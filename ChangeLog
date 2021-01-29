@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.0 (unreleased)
+1.1.0 (2021-01-29)
 ------------------
 
 - Add new notice types: ``AMON_NU_EM_COINC``, ``ICECUBE_CASCADE``.
