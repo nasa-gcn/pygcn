@@ -26,7 +26,7 @@ jobs:
         pip install pytest-flake8
     - name: Build
       run: |
-        python setup.py build
+        pip install -e .
     - name: Test
       run: |
-        python setup.py test --addopts='--flake8'
+        pytest --flake8
