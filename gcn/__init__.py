@@ -35,9 +35,9 @@ from . import handlers
 from . import notice_types
 from . import voeventclient
 from ._version import get_versions
-from .handlers import *
-from .notice_types import *
-from .voeventclient import *
+from .handlers import *  # noqa: F401, F403
+from .notice_types import *  # noqa: F401, F403
+from .voeventclient import *  # noqa: F401, F403
 
 __all__ = handlers.__all__ + notice_types.__all__ + voeventclient.__all__
 __version__ = get_versions()['version']
