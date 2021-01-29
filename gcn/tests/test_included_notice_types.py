@@ -1,9 +1,14 @@
+import pytest
+import requests
+import re
+import os
+
 from .. import notice_types
 
 
+@pytest.mark.skipif('PYTEST_NETWORK_ACCESS' not in os.environ, 
+                    reason="tests with network access disabled by defaulf, set PYTEST_NETWORK_ACCESS to enable")
 def test_included_notice_types():
-    import requests
-    import re
 
     for notice_id, notice_name in re.findall(
             r"^<tr.*?><th>(.*?)</th><th>(.*?)</th><th>.*?ACTIVE</th>",
