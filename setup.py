@@ -24,7 +24,7 @@ setup_requires = ['setuptools >= 30.3.0']
 if {'pytest', 'test', 'ptr'}.intersection(sys.argv):
     setup_requires.append('pytest-runner')
 
-# Get docstring and version without importing module
+# Get docstring without importing module
 with open('gcn/__init__.py') as f:
     mod = ast.parse(f.read())
 __doc__ = ast.get_docstring(mod)
