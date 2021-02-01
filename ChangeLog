@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1.1 (2021-02-01)
+1.1.1 (unreleased)
 ------------------
 
 - Remove use of the third-party ``pkg_resources`` module from unit tests and
