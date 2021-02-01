@@ -1,15 +1,21 @@
 import os
-import pkg_resources
 from urllib.parse import quote_plus
+
+try:
+    from importlib import resources
+except ImportError:
+    # FIXME: remove after dropping support for Python < 3.7
+    import importlib_resources as resources
 
 from lxml.etree import fromstring
 
+from . import data
 from .. import handlers
 from .. import notice_types
 
 
-payloads = [pkg_resources.resource_string(__name__, 'data/gbm_flt_pos.xml'),
-            pkg_resources.resource_string(__name__, 'data/kill_socket.xml')]
+payloads = [resources.read_binary(data, 'gbm_flt_pos.xml'),
+            resources.read_binary(data, 'kill_socket.xml')]
 
 
 def test_include_notice_types():
