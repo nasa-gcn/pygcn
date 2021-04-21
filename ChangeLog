@@ -10,6 +10,8 @@ Changelog
 
 - Add new notice type: ``SK_SN``. [Leo Singer]
 
+- Rename the development branch from ``master`` to ``main``. [Leo Singer]
+
 1.1.0 (2021-01-29)
 ------------------
 
