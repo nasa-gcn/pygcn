@@ -164,6 +164,7 @@ _notice_types = dict(
     AMON_NU_EM_COINC=172,
     ICECUBE_ASTROTRACK_GOLD=173,
     ICECUBE_ASTROTRACK_BRONZE=174,
+    SK_SN=175,
     ICECUBE_CASCADE=176)
 
 vars().update(**_notice_types)
