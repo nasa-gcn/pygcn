@@ -8,6 +8,8 @@ Changelog
   use Python standard library module ``importlib.resources`` instead.
   [Leo Singer]
 
+- Add new notice type: ``SK_SN``. [Leo Singer]
+
 1.1.0 (2021-01-29)
 ------------------
 
