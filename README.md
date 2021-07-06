@@ -2,8 +2,6 @@
 
 Anonymous VOEvent client for receiving GCN/TAN notices in XML format
 
-[![Build Status](https://travis-ci.org/lpsinger/pygcn.svg?branch=master)](https://travis-ci.org/lpsinger/pygcn)
-
 The [Gamma-ray Coordinates Network/Transient Astronomy Network (GCN/TAN)][1] is
 a system for distributing astronomical alerts, largely focused on operations of
 and detections from high-energy satellite missions.

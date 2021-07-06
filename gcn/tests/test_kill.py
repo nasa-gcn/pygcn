@@ -1,9 +1,15 @@
 import logging
-import pkg_resources
 import socket
 import threading
 import time
 
+try:
+    from importlib import resources
+except ImportError:
+    # FIXME: remove after dropping support for Python < 3.7
+    import importlib_resources as resources
+
+from . import data
 from .. import listen
 from .. import voeventclient
 from ..handlers import include_notice_types
@@ -12,8 +18,8 @@ from ..handlers import include_notice_types
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger()
 
-payloads = [pkg_resources.resource_string(__name__, 'data/gbm_flt_pos.xml'),
-            pkg_resources.resource_string(__name__, 'data/kill_socket.xml')]
+payloads = [resources.read_binary(data, 'gbm_flt_pos.xml'),
+            resources.read_binary(data, 'kill_socket.xml')]
 
 
 def serve(payloads, host='127.0.0.1', port=8099, retransmit_timeout=0,
@@ -72,10 +78,6 @@ def test_reconnect_after_kill():
     server_thread.start()
 
     handler = MessageCounter()
-
-    # FIXME: workaround for https://bugs.python.org/issue3445,
-    # fixed in Python 3.3
-    handler.__name__ = ''
 
     client_thread = threading.Thread(
         group=None, target=listen,
