@@ -45,9 +45,9 @@ def include_notice_types(*notice_types):
 
     def decorate(handler):
         @functools.wraps(handler)
-        def handle(payload, root):
+        def handle(payload, root, *args, **kwargs):
             if get_notice_type(root) in notice_types:
-                handler(payload, root)
+                handler(payload, root, *args, **kwargs)
         return handle
     return decorate
 
@@ -69,9 +69,9 @@ def exclude_notice_types(*notice_types):
 
     def decorate(handler):
         @functools.wraps(handler)
-        def handle(payload, root):
+        def handle(payload, root, *args, **kwargs):
             if get_notice_type(root) not in notice_types:
-                handler(payload, root)
+                handler(payload, root, *args, **kwargs)
         return handle
     return decorate
 
