@@ -4,7 +4,7 @@ Changelog
 1.1.2 (unreleased)
 ------------------
 
-- No changes yet.
+- Run unit tests under Python 3.10. [Leo Singer]
 
 1.1.1 (2021-04-20)
 ------------------
