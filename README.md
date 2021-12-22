@@ -1,5 +1,8 @@
 # PyGCN
 
+![Python Package Index status](https://img.shields.io/pypi/v/pygcn)
+[![Code coverage status](https://codecov.io/gh/lpsinger/pygcn/branch/master/graph/badge.svg?token=QDu6W3LiF6)](https://codecov.io/gh/lpsinger/pygcn)
+
 Anonymous VOEvent client for receiving GCN/TAN notices in XML format
 
 The [Gamma-ray Coordinates Network/Transient Astronomy Network (GCN/TAN)][1] is
