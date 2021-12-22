@@ -6,6 +6,9 @@ Changelog
 
 - Run unit tests under Python 3.10. [Leo Singer]
 
+- Drop support for Python 3.6, which reached end of life on 2021-12.23.
+  [Leo Singer]
+
 1.1.1 (2021-04-20)
 ------------------
 

@@ -1,13 +1,8 @@
+from importlib import resources
 import logging
 import socket
 import threading
 import time
-
-try:
-    from importlib import resources
-except ImportError:
-    # FIXME: remove after dropping support for Python < 3.7
-    import importlib_resources as resources
 
 from . import data
 from .. import listen
