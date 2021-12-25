@@ -4,7 +4,8 @@ Changelog
 1.1.3 (unreleased)
 ------------------
 
-- No changes yet.
+- The ``@include_notice_type`` and ``@exclude_notice_type`` decorators now pass
+  through all arguments to the wrapped function. [David Palmer]
 
 1.1.2 (2021-12-22)
 ------------------
