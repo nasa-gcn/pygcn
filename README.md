@@ -1,7 +1,7 @@
 # PyGCN
 
 ![Python Package Index status](https://img.shields.io/pypi/v/pygcn)
-[![Code coverage status](https://codecov.io/gh/lpsinger/pygcn/branch/main/graph/badge.svg?token=QDu6W3LiF6)](https://codecov.io/gh/lpsinger/pygcn)
+[![Code coverage status](https://codecov.io/gh/nasa-gcn/pygcn/branch/main/graph/badge.svg?token=QDu6W3LiF6)](https://codecov.io/gh/nasa-gcn/pygcn)
 
 Anonymous VOEvent client for receiving GCN/TAN notices in XML format
 
