@@ -1,9 +1,13 @@
 # Changelog
 
-## 1.1.3 (unreleased)
+## 1.1.3 (2022-07-20)
 
 - The `@include_notice_type` and `@exclude_notice_type` decorators now pass
   through all arguments to the wrapped function. [David Palmer]
+
+- Move the repository to https://github.com/nasa-gcn/pygcn. [Leo Singer]
+
+- Add notice types for GECAM. [Leo Singer]
 
 ## 1.1.2 (2021-12-22)
 
