@@ -1,11 +1,6 @@
+from importlib import resources
 import os
 from urllib.parse import quote_plus
-
-try:
-    from importlib import resources
-except ImportError:
-    # FIXME: remove after dropping support for Python < 3.7
-    import importlib_resources as resources
 
 from lxml.etree import fromstring
 
