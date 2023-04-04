@@ -90,24 +90,24 @@ gcn.listen(handler=handler)
 
 ## Threading
 
-You can run the listener in a separate thread and communicate with it
-through `Event` and `Queue` instances.  Here is an example:
+You can run the listener in a separate thread and pass the packets back in a `Queue`,
+allowing the main program to continue operating while waiting for an event.
+Here is an example:
 
 ```python
 #!/usr/bin/env python
 import gcn
 import threading
-import queue # For python 2.7, import Queue
+import queue
 
 # Set up communications:
-stopevent = threading.Event()
 messagequeue = queue.Queue()
-# Create a listen handler that enqueue the (payload, root) tuple
+# Create a listen handler to enqueue the (payload, root) tuple
 handler = gcn.handlers.queuehandlerfor(messagequeue)
 
 # Create and start the thread.
 thread = threading.Thread(target=gcn.listen,
-            kwargs=dict(handler=handler, stopevent=stopevent))
+            kwargs=dict(handler=handler))
 thread.start()
 
 # Wait for messages to come in, but do other things if they don't.
@@ -125,12 +125,6 @@ while thread.is_alive():
         if nothingcount > 10:
             print("Quitting due to inactivity")
             break
-
-# Send a stop event to the listen thread, then wait for it to quit.
-stopevent.set()
-thread.join()
-print("Done")
-
 ```
 
 

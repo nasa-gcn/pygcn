@@ -7,11 +7,7 @@ from lxml.etree import fromstring
 from . import data
 from .. import handlers
 from .. import notice_types
-
-try:
-    import queue
-except:
-    import Queue as queue
+import queue
 
 payloads = [resources.read_binary(data, 'gbm_flt_pos.xml'),
             resources.read_binary(data, 'kill_socket.xml')]
@@ -61,18 +57,18 @@ def test_archive(tmpdir):
 
 def test_queuehandler():
     queue_ = queue.Queue()
-    queuehandler = handlers.queuehandlerfor(queue_)
+    queuehandlerfor = handlers.queuehandlerfor(queue_)
     assert queue_.empty()
 
     for payload in payloads:
-        queuehandler(payload, fromstring(payload))
+        queuehandlerfor(payload, fromstring(payload))
         qpayload, qtree = queue_.get()
         assert qpayload == payload
 
     assert queue_.empty()
 
     for payload in payloads:
-        queuehandler(payload, fromstring(payload))
+        queuehandlerfor(payload, fromstring(payload))
     for payload in payloads:
         qpayload, qtree = queue_.get()
         assert qpayload == payload
