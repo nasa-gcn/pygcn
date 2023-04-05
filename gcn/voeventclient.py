@@ -138,9 +138,9 @@ def _form_response(role, origin, response, timestamp):
 
 
 def _ingest_packet(sock, ivorn, handler, log):
-    """Ingest one VOEvent Transport Protocol packet and act on it, first sending
-    the appropriate response and then calling the handler if the payload is a
-    VOEvent."""
+    """Ingest one VOEvent Transport Protocol packet and act on it, first
+    sending the appropriate response and then calling the handler if the
+    payload is a VOEvent."""
     # Receive payload
     payload = _recv_packet(sock)
     log.debug("received packet of %d bytes", len(payload))
