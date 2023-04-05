@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.4 (unreleased)
+
+- Run unit tests for Python 3.11. [Leo Singer]
+
 ## 1.1.3 (2022-07-20)
 
 - The `@include_notice_type` and `@exclude_notice_type` decorators now pass
