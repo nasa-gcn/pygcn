@@ -90,7 +90,7 @@ gcn.listen(handler=handler)
 
 ## Threading
 
-You can run the listener in a separate thread and pass the packets back in a `Queue`,
+You can run the listener in a separate thread or process and pass the packets back in a `Queue`,
 allowing the main program to continue operating while waiting for an event.
 Here is an example:
 
@@ -112,7 +112,7 @@ thread.start()
 
 # Wait for messages to come in, but do other things if they don't.
 nothingcount=0
-while thread.is_alive():
+while True:
     try:
         # Use block=False if you want to timeout immediately 
         payload,root = messagequeue.get(timeout=10)
