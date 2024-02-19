@@ -88,6 +88,45 @@ def handler(payload, root):
 gcn.listen(handler=handler)
 ```
 
+## Threading
+
+You can run the listener in a separate thread or process and pass the packets back in a `Queue`,
+allowing the main program to continue operating while waiting for an event.
+Here is an example:
+
+```python
+#!/usr/bin/env python
+import gcn
+import threading
+import queue
+
+# Set up communications:
+messagequeue = queue.Queue()
+# Create a listen handler to enqueue the (payload, root) tuple
+handler = gcn.handlers.queuehandlerfor(messagequeue)
+
+# Create and start the thread.
+thread = threading.Thread(target=gcn.listen,
+            kwargs=dict(handler=handler))
+thread.start()
+
+# Wait for messages to come in, but do other things if they don't.
+nothingcount=0
+while True:
+    try:
+        # Use block=False if you want to timeout immediately 
+        payload,root = messagequeue.get(timeout=10)
+        print(root.attrib['ivorn'])
+        nothingcount = 0
+    except queue.Empty:
+        # Do idle stuff here.
+        print("Nothing...")
+        nothingcount += 1
+        if nothingcount > 10:
+            print("Quitting due to inactivity")
+            break
+```
+
 
 [1]: http://gcn.gsfc.nasa.gov
 [2]: http://www.ivoa.net/documents/VOEvent
