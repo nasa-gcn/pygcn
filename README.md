@@ -59,6 +59,7 @@ def handler(payload, root):
 # Listen for VOEvents until killed with Control-C.
 gcn.listen(handler=handler)
 ```
+
 ## Filtering
 
 You can also filter events by notice type using
