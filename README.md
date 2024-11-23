@@ -60,7 +60,24 @@ def handler(payload, root):
 gcn.listen(handler=handler)
 ```
 
-## Filtering
+## Server-Side Filtering
+
+VOEvent brokers that are powered by [Comet](https://comet.transientskp.org/) support [server-side filtering of alerts](https://comet.transientskp.org/en/stable/filtering.html). You configure the server-side filtering when you connect by supplying an [XPath expression](https://www.w3schools.com/xml/xpath_syntax.asp) in the optional `filter` argument for `gcn.listen`:
+
+```python
+gcn.listen(handler=handler, filter='insert-filter-here')
+```
+
+Here is a cheat sheet for some common filter expressions.
+
+| Filter expression | What it does |
+| - | - |
+| `//Param[@name="Packet_Type" and @value="115"]` | Pass only alerts of notice type 115 (`FERMI_GBM_FIN_POS`) |
+| `//Param[@name="Packet_Type" and @value="115"] and //Error2Radius<=6` | Pass only alerts of notice type 115 (`FERMI_GBM_FIN_POS`) with error radius less than or equal to 6° |
+| `//Param[@name="Packet_Type" and (@value="112" or @value="115")]` | Pass only alerts of notice type 112 (`FERMI_GBM_GND_POS`) or 115 (`FERMI_GBM_FIN_POS`) |
+| `starts-with(@ivorn, "ivo://gwnet/") and @role!="test"` | Pass only LIGO-Virgo-KAGRA gravitational-wave alerts that are not test alerts |
+
+## Client-Side Filtering
 
 You can also filter events by notice type using
 `gcn.include_notice_types` or `gcn.exclude_notice_types`.
