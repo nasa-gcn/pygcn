@@ -25,6 +25,7 @@ import socket
 import struct
 import time
 import itertools
+from xml.sax.saxutils import quoteattr
 
 from lxml.etree import fromstring, XMLSyntaxError
 
@@ -42,7 +43,7 @@ _valid_vtp_root_tags = {
 
 def _get_now_iso8601():
     """Get current date-time in ISO 8601 format."""
-    return datetime.datetime.now().isoformat()
+    return datetime.datetime.now().isoformat() + "Z"
 
 
 def _open_socket(hosts_ports, iamalive_timeout, max_reconnect_timeout, log):
@@ -121,7 +122,7 @@ def _send_packet(sock, payload):
     sock.sendall(_size_struct.pack(len(payload)) + payload)
 
 
-def _form_response(role, origin, response, timestamp):
+def _form_response(role, origin, response, timestamp, meta=''):
     """Form a VOEvent Transport Protocol packet suitable for sending an `ack`
     or `iamalive` response."""
     return (
@@ -133,11 +134,12 @@ def _form_response(role, origin, response, timestamp):
         'Transport/v1.1 '
         'http://telescope-networks.org/schema/Transport-v1.1.xsd"><Origin>' +
         origin + '</Origin><Response>' + response +
-        '</Response><TimeStamp>' + timestamp +
-        '</TimeStamp></trn:Transport>').encode('UTF-8')
+        '</Response>' + '<Meta>' + meta + '</Meta>'
+        + '<TimeStamp>' + timestamp + '</TimeStamp></trn:Transport>'
+    ).encode('UTF-8')
 
 
-def _ingest_packet(sock, ivorn, handler, log):
+def _ingest_packet(sock, ivorn, handler, log, filter):
     """Ingest one VOEvent Transport Protocol packet and act on it, first
     sending the appropriate response and then calling the handler if the
     payload is a VOEvent."""
@@ -163,6 +165,13 @@ def _ingest_packet(sock, ivorn, handler, log):
                              root.find("Origin").text, ivorn,
                              _get_now_iso8601()))
                 log.debug("sent iamalive response")
+            elif root.attrib["role"] == "authenticate" and filter is not None:
+                log.debug("received authenticate message")
+                _send_packet(sock, _form_response("authenticate",
+                             root.find("Origin").text, ivorn,
+                             _get_now_iso8601(),
+                             f'<Param name="xpath-filter" value={filter}/>'))
+                log.debug("sent authenticate response")
             else:
                 log.error(
                     'received transport message with unrecognized role: %s',
@@ -212,7 +221,7 @@ def _validate_host_port(host, port):
 
 def listen(host=("45.58.43.186", "68.169.57.253"), port=8099,
            ivorn="ivo://python_voeventclient/anonymous", iamalive_timeout=150,
-           max_reconnect_timeout=1024, handler=None, log=None):
+           max_reconnect_timeout=1024, handler=None, log=None, filter=None):
     """Connect to a VOEvent Transport Protocol server on the given `host` and
     `port`, then listen for VOEvents until interrupted (i.e., by a keyboard
     interrupt, `SIGINTR`, or `SIGTERM`).
@@ -233,9 +242,16 @@ def listen(host=("45.58.43.186", "68.169.57.253"), port=8099,
     used for reporting the client's status. If `log` is not provided, a default
     logger will be used.
 
+    If `filter` is provided, then it is passed to the server as an
+    `XPath filtering expression
+    <https://comet.transientskp.org/en/stable/filtering.html>`_.
+
     Note that this function does not return."""
     if log is None:
         log = logging.getLogger('gcn.listen')
+
+    if filter is not None:
+        filter = quoteattr(filter)
 
     hosts_ports = itertools.cycle(zip(*_validate_host_port(host, port)))
 
@@ -246,7 +262,7 @@ def listen(host=("45.58.43.186", "68.169.57.253"), port=8099,
 
         try:
             while True:
-                _ingest_packet(sock, ivorn, handler, log)
+                _ingest_packet(sock, ivorn, handler, log, filter)
         except socket.timeout:
             log.warn("timed out")
         except socket.error:
