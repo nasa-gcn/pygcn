@@ -76,6 +76,11 @@ def listen_main(args=None):
                         'provided, then loop over hosts until a connection '
                         'with one of them is established. '
                         '(default: %(default)s)')
+    parser.add_argument(
+        '--filter', help='Optional XPath expression for server-side event '
+        'filtering. Only supported by Comet brokers. See '
+        'https://comet.transientskp.org/en/stable/filtering.html for '
+        'supported syntax')
     parser.add_argument('--version', action='version',
                         version='pygcn ' + __version__)
     args = parser.parse_args(args)
@@ -85,7 +90,7 @@ def listen_main(args=None):
 
     # Listen for GCN notices (until interrupted or killed)
     host, port = [list(_) for _ in zip(*args.addr)]
-    listen(host=host, port=port, handler=handlers.archive)
+    listen(host=host, port=port, handler=handlers.archive, filter=args.filter)
 
 
 def serve_main(args=None):
